@@ -18,6 +18,10 @@
 // Intel Corporation is the author of the Materials, and requests that all
 // problem reports or change requests be submitted to it directly
 
+// Utils extended by Karol Olko and Piotr Wisniewski, University of Science and Technology Krakow
+//
+//
+
 #include "CL\cl.h"
 #include <d3d9.h>
 
@@ -282,6 +286,8 @@ cl_int fillRandomFloatVecBuffer(	cl_command_queue* cmdqueue,
 
 
 char *ReadSources(const char *fileName);
+
+void getPlatformsExtensions();
 
 cl_platform_id GetIntelOCLPlatform();
 

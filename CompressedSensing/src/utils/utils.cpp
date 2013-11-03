@@ -84,6 +84,48 @@ char *ReadSources(const char *fileName)
     return src;
 }
 
+
+
+void getPlatformsExtensions() 
+{
+	cl_platform_id *platforms;
+	cl_uint num_platforms;
+	cl_uint i,err, platform_index = -1;
+
+	char *extension_data;
+	size_t extension_size;
+	const char icd_extension[] = "cl_khr_icd";
+
+	err = clGetPlatformIDs(1, NULL, &num_platforms);
+	platforms = (cl_platform_id*) malloc(sizeof(cl_platform_id) * num_platforms);
+	clGetPlatformIDs(num_platforms, platforms, NULL);
+
+	for(int i = 0; i < num_platforms; i++) {
+		err = clGetPlatformInfo(platforms[i], CL_PLATFORM_EXTENSIONS, 0, NULL, &extension_size);
+		if(err < 0) {
+			perror("Couldn't read extension data");
+			exit(1);
+		}
+
+		extension_data = (char*)malloc(extension_size);
+		clGetPlatformInfo(platforms[i], CL_PLATFORM_EXTENSIONS, extension_size, extension_data, NULL);
+		printf_s("Platform %d supports extensions: %s\n", i, extension_data);
+
+		if(strstr(extension_data, icd_extension) != NULL) {
+			free(extension_data);
+			platform_index = i;
+			break;
+		}
+		free(extension_data);
+	}
+	if(platform_index > -1) {
+			printf_s("Platform %d supports %s extension.\n",platform_index, icd_extension);
+		}else {
+			printf_s("No platforms support the %s extension.\n", icd_extension);
+		}
+		free(platforms);
+}
+
 cl_platform_id GetIntelOCLPlatform()
 {
     cl_platform_id pPlatforms[10] = { 0 };
