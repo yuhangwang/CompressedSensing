@@ -37,9 +37,4 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <Intel_OpenCL_Build_Rules Include="src\MedianFilter.cl">
-      <Filter>Source Files</Filter>
-    </Intel_OpenCL_Build_Rules>
-  </ItemGroup>
 </Project>

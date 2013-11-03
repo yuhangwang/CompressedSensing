@@ -27,9 +27,6 @@
     <ClInclude Include="src\targetver.h" />
     <ClInclude Include="src\utils\utils.h" />
   </ItemGroup>
-  <ItemGroup>
-    <Intel_OpenCL_Build_Rules Include="src\MedianFilter.cl" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{808557E2-E43D-434F-8F8D-49CBD863F53D}</ProjectGuid>
     <RootNamespace>CompressedSensing</RootNamespace>
