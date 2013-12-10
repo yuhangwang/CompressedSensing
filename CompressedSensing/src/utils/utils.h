@@ -22,11 +22,20 @@
 //
 //
 
+#include <stdexcept>
 #include "CL\cl.h"
 #include <d3d9.h>
+#include <boost/program_options.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
 
+namespace opts = boost::program_options;
 
 #pragma once
+
+namespace CS {
+namespace utils {
 
 const char* OCL_GetErrorString(cl_int error);
 
@@ -295,3 +304,9 @@ void BuildFailLog( cl_program program, cl_device_id device_id );
 
 bool SaveImageAsBMP ( unsigned int* ptr, int width, int height, const char* fileName);
 
+//myUtils
+opts::variables_map setAndRunCommandLineArgs(int argc, char **argv, double* measurementRatio, bool* verbose,std::string* cameraName, opts::options_description&);
+void validateInputArguments(int, int, double);
+void setLoggingParameters(bool verbose);
+
+}} //namespace brackets

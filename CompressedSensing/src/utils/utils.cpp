@@ -33,6 +33,8 @@
 #pragma warning( push )
 #pragma warning( disable : 4996 )
 
+namespace CS {
+namespace utils {
 
 char *ReadSources(const char *fileName)
 {
@@ -585,5 +587,50 @@ const char* OCL_GetErrorString(cl_int error)
             return "unknown error code";
     }
 }
-
 #pragma warning( pop )
+
+opts::variables_map setAndRunCommandLineArgs(int argc, char **argv, double* measurementRatio, bool* verbose, std::string* cameraName, opts::options_description& desc) {
+	desc.add_options()
+		("help", "produce help message")
+		("image-width,w", opts::value<int>(), "set image width")
+		("image-height,h", opts::value<int>(), "set image height")
+		("factor,f", opts::value<double>(measurementRatio)->default_value(0.5), "set M/N ratio")
+		("verbose", opts::value<bool>(verbose)->default_value(false), "set for verbose program operation")
+		("camera-name,c", opts::value<std::string>(cameraName)->default_value(std::string("TestCamera")), "run on test image or capture from Jai Camera")
+		;
+	opts::variables_map vm;
+	opts::store(opts::parse_command_line(argc, argv, desc), vm);
+	opts::notify(vm);
+	return vm;
+}
+
+void validateInputArguments(int w, int h, double measurementRatio) {
+
+	if(measurementRatio <= 0 || measurementRatio > 1) {
+		throw std::range_error("measurementFactor not in [0,1)");
+	}
+
+	if(w <= 0 || w > 255) {
+		throw std::range_error("image width not in N x [0,255]");
+	}
+
+	if(h <= 0 || h > 255) {
+		throw std::range_error("image height not in N x [0,255]");
+	}
+}
+
+void setLoggingParameters(bool verbose) {
+	if(verbose) {
+		boost::log::core::get()->set_filter
+			(
+			boost::log::trivial::severity >= boost::log::trivial::trace
+			);
+	}else {
+		boost::log::core::get()->set_filter
+			(
+			boost::log::trivial::severity >= boost::log::trivial::warning
+			);
+	}
+}
+
+}} // namespace brackets

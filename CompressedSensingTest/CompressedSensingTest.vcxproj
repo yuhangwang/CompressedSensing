@@ -11,7 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\testmain.cpp" />
+    <ClCompile Include="src\camera\TestCamera.cpp" />
+    <ClCompile Include="test\testmain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="test\camera\TestCamera.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{83D545B4-6167-4211-80AE-4FE2F3601C80}</ProjectGuid>
@@ -47,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/;$(SolutionDir)/../CompressedSensing/;$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_VARIADIC_MAX=10;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>

@@ -1,0 +1,122 @@
+#include "src/camera/JaiCamera.h"
+#include <string>
+#include <conio.h>
+#include <iomanip>
+#include <memory>
+#include <iostream>
+
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv/cv.h>
+
+using namespace std;
+using namespace cv;
+using namespace CS::camera;
+
+JaiCamera::JaiCamera(int imageWidth, int imageHeight, double measurementRatio) {}
+JaiCamera::~JaiCamera() {}
+
+void JaiCamera::snap() {
+}
+
+void JaiCamera::grab() {
+}
+
+void JaiCamera::stop() {
+}
+
+void JaiCamera::OpenCameraOfIndex(int index) {
+	int8_t m_sCameraId[J_CAMERA_ID_SIZE];
+	uint32_t iSize = (uint32_t)sizeof(m_sCameraId);
+	J_Factory_GetCameraIDByIndex(factoryHandle, index, m_sCameraId, &iSize);
+	J_Camera_Open(factoryHandle, m_sCameraId, &camHandle);
+}
+
+void JaiCamera::validator(const char *name, J_STATUS_TYPE *retVal) {
+  if ((*retVal) == J_ST_SUCCESS) {
+    cout << name << "OK" << endl;
+  } else {
+    cout << name << "NOT_OK. RetVal = " << *retVal << endl;
+  }
+}
+
+bool JaiCamera::OpenFactoryAndCamera() {
+  J_STATUS_TYPE retVal;
+  bool8_t bHasChange;
+  retVal = J_Factory_Open((const int8_t *)"", &factoryHandle);
+  validator("J_Factory_Open", &retVal);
+  retVal = J_Factory_UpdateCameraList(factoryHandle, &bHasChange);
+  validator("J_Factory_UpdateCameraList", &retVal);
+
+  OpenCameraOfIndex(0);
+  OpenLiveViewStream();
+  CloseFactoryAndCamera();
+  return true;
+}
+
+int64_t JaiCamera::GetParameter(string paramName) {
+  int64_t answer;
+  NODE_HANDLE hNode;
+  J_Camera_GetNodeByName(camHandle, (int8_t *)(paramName.c_str()), &hNode);
+  J_Node_GetValueInt64(hNode, false, &answer);
+  return answer;
+}
+
+int64_t JaiCamera::GetSizeOfBuffer() {
+  const int64_t width = GetParameter("Width");
+  const int64_t height = GetParameter("Height");
+  const int64_t pixelFormat = GetParameter("PixelFormat");
+  const unsigned int bpp = J_BitsPerPixel(pixelFormat);
+
+  return bpp * height * width / 8;
+}
+
+void JaiCamera::StreamCBFunc(J_tIMAGE_INFO *pAqImageInfo) {
+  IplImage *m_pImg = cvCreateImage(
+      cvSize(pAqImageInfo->iSizeX, pAqImageInfo->iSizeY), IPL_DEPTH_8U, 1);
+  IplImage *m_pOutputImg = cvCreateImage(cvGetSize(m_pImg), 8, 1);
+  IplImage *m_pColorOutputImg = cvCreateImage(cvGetSize(m_pImg), 8, 3);
+
+  memcpy(m_pImg->imageData, pAqImageInfo->pImageBuffer, m_pImg->imageSize);
+  // cvSaveImage("foo_gray.bmp", m_pImg);
+
+  cv::Mat input(m_pImg, true);
+  cv::Mat output(m_pColorOutputImg);
+  cv::cvtColor(input, output, CV_BayerRG2RGB);
+
+  // cvSaveImage("foo_color.bmp", m_pColorOutputImg);
+}
+
+void JaiCamera::OpenStream() {
+
+  long long int buffersize = GetSizeOfBuffer();
+  cout << "buffersize = " << buffersize << endl;
+  J_STATUS_TYPE retVal = J_Image_OpenStream(
+      camHandle, 0, reinterpret_cast<J_IMG_CALLBACK_OBJECT>(this),
+      reinterpret_cast<J_IMG_CALLBACK_FUNCTION>(&JaiCamera::StreamCBFunc),
+      &hThread, (uint32_t)buffersize);
+  validator("J_Image_OpenStream", &retVal);
+}
+
+void JaiCamera::OpenLiveViewStream() {
+  J_STATUS_TYPE retVal;
+  OpenStream();
+  retVal = J_Camera_ExecuteCommand(camHandle, (int8_t *)"AcquisitionStart");
+  validator("J_Camera_AcqStart", &retVal);
+  Sleep(2000);
+  J_Camera_ExecuteCommand(camHandle, (int8_t *)"AcquisitionStop");
+  validator("J_Camera_AcqStop", &retVal);
+  J_Image_CloseStream(hThread);
+}
+
+void JaiCamera::CloseFactoryAndCamera() {
+  if (camHandle) {
+    J_Camera_Close(camHandle);
+    camHandle = NULL;
+  }
+
+  if (factoryHandle) {
+    J_Factory_Close(factoryHandle);
+    factoryHandle = NULL;
+  }
+}

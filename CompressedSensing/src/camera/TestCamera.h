@@ -1,0 +1,22 @@
+#ifndef TEST_CAMERA_H
+#define TEST_CAMERA_H
+
+#include "src/camera/ICamera.h"
+
+namespace CS {
+namespace camera {
+
+class TestCamera : public ICamera {
+public:
+
+	TestCamera(int imageWidth, int imageHeight, double measurementRatio);
+	~TestCamera();
+
+	void snap();
+	void grab();
+	void stop();
+};
+
+}}
+
+#endif /*TEST_CAMERA_H*/
