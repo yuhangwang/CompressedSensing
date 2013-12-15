@@ -8,6 +8,7 @@ using namespace CS::camera;
 TestCamera::TestCamera(int imageWidth, int imageHeight, double measurementRatio) {BOOST_LOG_TRIVIAL(info) << "TestCamera construction\n";}
 TestCamera::~TestCamera() {BOOST_LOG_TRIVIAL(info) << "TestCamera de-construction\n";}
 
-void TestCamera::snap() {}
-void TestCamera::grab() {}
-void TestCamera::stop() {}
+cv::Mat& TestCamera::gatherMeasurements() {
+	outFile = cv::Mat::ones(3,3, CV_8UC1);
+	return outFile;
+}

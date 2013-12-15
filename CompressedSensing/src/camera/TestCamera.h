@@ -2,6 +2,8 @@
 #define TEST_CAMERA_H
 
 #include "src/camera/ICamera.h"
+#include <opencv2/core/core.hpp>
+#include <opencv/cv.h>
 
 namespace CS {
 namespace camera {
@@ -12,9 +14,9 @@ public:
 	TestCamera(int imageWidth, int imageHeight, double measurementRatio);
 	~TestCamera();
 
-	void snap();
-	void grab();
-	void stop();
+	cv::Mat& gatherMeasurements();
+private:
+	cv::Mat outFile;
 };
 
 }}

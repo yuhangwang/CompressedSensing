@@ -1,6 +1,10 @@
 #ifndef I_CAMERA_H
 #define I_CAMERA_H
 
+#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
+
+ 
 namespace CS {
 namespace camera {
 
@@ -10,9 +14,7 @@ public:
 	ICamera();
 	virtual ~ICamera()=0;
 	
-	virtual void snap()=0;
-	virtual void grab()=0;
-	virtual void stop()=0;
+	virtual cv::Mat& gatherMeasurements()=0;
 };
 
 }}

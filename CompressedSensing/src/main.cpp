@@ -10,6 +10,16 @@
 #include "src/exceptions/Exceptions.h"
 #include "src/camera/CameraFactory.h"
 
+
+#include "viennacl/ocl/device.hpp"
+#include "viennacl/ocl/platform.hpp"
+#include "viennacl/scalar.hpp"
+#include "viennacl/vector.hpp"
+#include "viennacl/matrix.hpp"
+#include "viennacl/linalg/prod.hpp"
+#include "viennacl/matrix_proxy.hpp"
+#include "viennacl/linalg/lu.hpp"
+
 using namespace std;
 using namespace CS;
 using namespace CS::camera;
@@ -25,8 +35,6 @@ using namespace boost::numeric::ublas;
 #pragma comment (lib, "opencv_core244.lib")
 #pragma comment (lib, "opencv_imgproc244d.lib")
 #endif
-
-ostringstream CS::exception::UnknownTypeException::msg;
 
 int main(int argc, char **argv) {
 	double measurementRatio = 0.0;
@@ -50,8 +58,16 @@ int main(int argc, char **argv) {
 
 		utils::validateInputArguments(imageWidth, imageHeight, measurementRatio);
 		std::shared_ptr<ICamera> pCamera(CameraFactory::getInstance(cameraName, imageWidth, imageHeight, measurementRatio));
+		cv::Mat measurementMatrix = pCamera->gatherMeasurements();
 
+		cout << viennacl::ocl::device().info();
 
+		BOOST_LOG_TRIVIAL(info) << "Application successful exit";
+
+	}catch(std::bad_alloc& e) {
+		cerr << "Probably not enough memory: "<<e.what() << "\n";
+	}catch(CS::exception::JaiCameraException& e) {
+		cerr << "Exception in JaiCamera: " << e.what() << "\n";
 	}catch(CS::exception::UnknownTypeException& e) {
 		cerr << "type_error: "<<e.what() << "\n";
 	}catch(range_error& e) {
@@ -62,6 +78,6 @@ int main(int argc, char **argv) {
 		cerr << "Exception of unknown type!\n";
 	}
 
-	BOOST_LOG_TRIVIAL(info) << "Application successful exit";
+	
 	return 0;
 }

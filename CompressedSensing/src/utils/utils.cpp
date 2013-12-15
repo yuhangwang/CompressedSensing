@@ -102,7 +102,7 @@ void getPlatformsExtensions()
 	platforms = (cl_platform_id*) malloc(sizeof(cl_platform_id) * num_platforms);
 	clGetPlatformIDs(num_platforms, platforms, NULL);
 
-	for(int i = 0; i < num_platforms; i++) {
+	for(i = 0; i < num_platforms; i++) {
 		err = clGetPlatformInfo(platforms[i], CL_PLATFORM_EXTENSIONS, 0, NULL, &extension_size);
 		if(err < 0) {
 			perror("Couldn't read extension data");

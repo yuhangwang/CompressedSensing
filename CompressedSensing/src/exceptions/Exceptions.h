@@ -17,6 +17,16 @@ private:
 	static ostringstream msg;
 };
 
+class JaiCameraException : public exception {
+public:
+	JaiCameraException(string msg, int errorCode);
+	virtual const char* what() const throw();
+private:
+	string functionName;
+	int errorCode;
+	static ostringstream msg;
+};
+
 }}
 
 #endif /*EXCEPTIONS_H*/
