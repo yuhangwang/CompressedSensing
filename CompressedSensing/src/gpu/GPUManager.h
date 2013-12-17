@@ -20,7 +20,7 @@ namespace gpu {
 
 class GPUManager {
 public:
-	cv::Mat& createBinaryMatrix(int rows, int cols);
+	cv::Mat& createBinaryMeasurementMatrix(int rows, int cols);
 
 private:
 	cv::Mat measurementMatrix;

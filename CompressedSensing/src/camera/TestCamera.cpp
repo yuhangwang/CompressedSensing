@@ -14,10 +14,5 @@ void TestCamera::grab() {
 void TestCamera::stop() {
 }
 
-void TestCamera::setCallback(void (*callbackFunction)(void *context)) {
-}
-
-cv::Mat& TestCamera::gatherMeasurements() {
-	outFile = cv::Mat::ones(3,3, CV_8UC1);
-	return outFile;
+void TestCamera::registerCallback(std::function<void (Frame& frame)> function) {
 }

@@ -56,7 +56,10 @@ int main(int argc, char **argv) {
 
 		ExperimentParameters params;
 		params.measurementRatio = measurementRatio;
-		ExperimentHandler handler(pCamera, imageWidth, imageHeight, params);
+		params.imageWidth = imageWidth;
+		params.imageHeight = imageHeight;
+
+		ExperimentHandler handler(pCamera, params);
 
 		cout << viennacl::ocl::device().info();
 

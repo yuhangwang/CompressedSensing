@@ -16,9 +16,8 @@ public:
 
 	void grab();
 	void stop();
-	void setCallback(void (*callbackFunction)(void *context));
+	void registerCallback(std::function<void (Frame& frame)> function);
 
-	cv::Mat& gatherMeasurements();
 private:
 	cv::Mat outFile;
 };

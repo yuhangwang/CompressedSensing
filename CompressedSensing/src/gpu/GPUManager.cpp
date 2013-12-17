@@ -3,7 +3,7 @@
 using namespace cv;
 using namespace CS::gpu;
 
-Mat& GPUManager::createBinaryMatrix(int rows, int cols) {
+Mat& GPUManager::createBinaryMeasurementMatrix(int rows, int cols) {
 	return measurementMatrix;
 }
 

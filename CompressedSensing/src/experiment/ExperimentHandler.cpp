@@ -1,7 +1,12 @@
 #include "src/experiment/ExperimentHandler.h"
-#include "src/camera/ICamera.h"
 
 using namespace CS::experiment;
+using namespace CS::camera;
 
-ExperimentHandler::ExperimentHandler(std::shared_ptr<CS::camera::ICamera> camera, int imageWidth, int imageHeight, ExperimentParameters& params) {
+
+ExperimentHandler::ExperimentHandler(std::shared_ptr<ICamera> camera, ExperimentParameters& params) {
+	camera->registerCallback(std::bind(&ExperimentHandler::simpleTransform, this, std::placeholders::_1));
+}
+
+void ExperimentHandler::simpleTransform(Frame& frame) {
 }

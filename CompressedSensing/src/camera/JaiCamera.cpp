@@ -17,42 +17,43 @@
 #include <opencv2/core/core.hpp>
 #include <opencv/cv.h>
 
+#include "src/camera/ICamera.h"
+
 using namespace std;
 using namespace cv;
 using namespace CS::camera;
 using namespace CS::exception;
 
 JaiCamera::JaiCamera(int imageWidth, int imageHeight): 
-	currentRow(0), measurementComplete(false) {
+	isCallbackRegistered(false) {
 	
-	BOOST_LOG_TRIVIAL(debug) <<"JaiCamera::JaiCamera: measurementMatrix allocated";
 }
 JaiCamera::~JaiCamera() {
 	closeFactoryAndCamera();
 }
 
 void JaiCamera::grab() {
+	J_STATUS_TYPE retVal;
+	if(!isCallbackRegistered) {
+		throw new JaiCameraException("Callback not registered before grabbing!", -1);
+	}
+	
+	openStream();
+	retVal = J_Camera_ExecuteCommand(camHandle, (int8_t *)"AcquisitionStart");
+	validator("J_Camera_AcqStart", &retVal);
+
 }
 
 void JaiCamera::stop() {
+	J_STATUS_TYPE retVal;
+	J_Camera_ExecuteCommand(camHandle, (int8_t *)"AcquisitionStop");
+	validator("J_Camera_AcqStop", &retVal);
+	J_Image_CloseStream(hThread);
 }
 
-void JaiCamera::setCallback(void (*callbackFunction)(void *context)) {
-
-}
-
-Mat& JaiCamera::gatherMeasurements() {
-	openFactoryAndCamera();
-	openMeasurementStream();
-
-	waitUntilMeasurementFinished();
-	return measurementMatrix;
-}
-
-void JaiCamera::waitUntilMeasurementFinished() {
-	while(!measurementComplete) {
-		Sleep(50);
-	}
+void JaiCamera::registerCallback(std::function<void (Frame& frame)> function) {
+	callbackFunction = function;
+	isCallbackRegistered = true;
 }
 
 void JaiCamera::openCameraOfIndex(int index) {
@@ -113,36 +114,21 @@ void JaiCamera::streamCBFunc(J_tIMAGE_INFO *pAqImageInfo) {
 	cv::imshow("camera-image", output);
 }
 
-void JaiCamera::getMeasurementMatrixCBFunc(J_tIMAGE_INFO *pAqImageInfo) {
+void JaiCamera::callbackWrapper(J_tIMAGE_INFO *pAqImageInfo) {
+	int imageWidth = pAqImageInfo->iSizeY;
+	int imageHeight = pAqImageInfo->iSizeX;
+	unsigned char* data = pAqImageInfo->pImageBuffer;
+	Frame frame(imageWidth, imageHeight, data);
+	callbackFunction(frame);
 }
 
 void JaiCamera::openStream() {
 	long long int buffersize = getSizeOfBuffer();
 	J_STATUS_TYPE retVal = J_Image_OpenStream(
 		camHandle, 0, reinterpret_cast<J_IMG_CALLBACK_OBJECT>(this),
-		reinterpret_cast<J_IMG_CALLBACK_FUNCTION>(&JaiCamera::streamCBFunc),
+		reinterpret_cast<J_IMG_CALLBACK_FUNCTION>(&JaiCamera::callbackWrapper),
 		&hThread, (uint32_t)buffersize);
 	validator("J_Image_OpenStream", &retVal);
-}
-
-void JaiCamera::openMeasurementStream() {
-	long long int buffersize = getSizeOfBuffer();
-	J_STATUS_TYPE retVal = J_Image_OpenStream(
-		camHandle, 0, reinterpret_cast<J_IMG_CALLBACK_OBJECT>(this),
-		reinterpret_cast<J_IMG_CALLBACK_FUNCTION>(&JaiCamera::getMeasurementMatrixCBFunc),
-		&hThread, (uint32_t)buffersize);
-	validator("J_Image_OpenStream", &retVal);
-}
-
-void JaiCamera::openLiveViewStream() {
-	J_STATUS_TYPE retVal;
-	openStream();
-	retVal = J_Camera_ExecuteCommand(camHandle, (int8_t *)"AcquisitionStart");
-	validator("J_Camera_AcqStart", &retVal);
-	Sleep(2000);
-	J_Camera_ExecuteCommand(camHandle, (int8_t *)"AcquisitionStop");
-	validator("J_Camera_AcqStop", &retVal);
-	J_Image_CloseStream(hThread);
 }
 
 void JaiCamera::closeFactoryAndCamera() {

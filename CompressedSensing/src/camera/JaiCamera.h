@@ -5,6 +5,8 @@
 #include <string>
 #include <stdint.h>
 #include <Jai_Factory.h>
+#include <functional>
+
 
 class cv::Mat;
 
@@ -16,17 +18,14 @@ public:
 	JaiCamera(int, int);
 	~JaiCamera();
 
-	cv::Mat& gatherMeasurements();
 	void grab();
 	void stop();
 
-	void setCallback(void (*callbackFunction)(void *context));
+	void registerCallback(std::function<void (Frame& frame)>);
 private:
-	void (*callbackFunction)(J_tIMAGE_INFO *pAqImageInfo);
-	bool measurementComplete;
-	cv::Mat measurementMatrix;
-	int currentRow;
-	int nRows, nCols;
+	std::function<void (Frame&)> callbackFunction;
+	
+	bool isCallbackRegistered;
 
 	CAM_HANDLE camHandle;
 	FACTORY_HANDLE factoryHandle;
@@ -37,13 +36,10 @@ private:
 	int64_t getSizeOfBuffer();
 
 	void validator(const char *, J_STATUS_TYPE *);
-	void openLiveViewStream();
 	void openCameraOfIndex(int index);
 	void openStream();
-	void openMeasurementStream();
-	void waitUntilMeasurementFinished();
 	void streamCBFunc(J_tIMAGE_INFO *pAqImageInfo);
-	void getMeasurementMatrixCBFunc(J_tIMAGE_INFO *pAqImageInfo);
+	void callbackWrapper(J_tIMAGE_INFO *pAqImageInfo);
 	bool openFactoryAndCamera();
 	void closeFactoryAndCamera();
 };
