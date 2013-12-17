@@ -11,8 +11,12 @@ namespace camera {
 class TestCamera : public ICamera {
 public:
 
-	TestCamera(int imageWidth, int imageHeight, double measurementRatio);
+	TestCamera(int imageWidth, int imageHeight);
 	~TestCamera();
+
+	void grab();
+	void stop();
+	void setCallback(void (*callbackFunction)(void *context));
 
 	cv::Mat& gatherMeasurements();
 private:

@@ -12,7 +12,7 @@ namespace camera {
 
 class CameraFactory {
 public:
-	static ICamera* getInstance(std::string&, int imageWidth, int imageHeight, double measurementRatio);
+	static ICamera* getInstance(std::string&, int imageWidth, int imageHeight);
 };
 
 }}

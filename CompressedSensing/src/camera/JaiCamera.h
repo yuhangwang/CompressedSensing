@@ -13,17 +13,20 @@ namespace camera {
 
 class JaiCamera : public ICamera {
 public:
-	JaiCamera(int, int, double);
+	JaiCamera(int, int);
 	~JaiCamera();
 
 	cv::Mat& gatherMeasurements();
+	void grab();
+	void stop();
 
+	void setCallback(void (*callbackFunction)(void *context));
 private:
 	void (*callbackFunction)(J_tIMAGE_INFO *pAqImageInfo);
 	bool measurementComplete;
-	const int numberOfMeasurements;
 	cv::Mat measurementMatrix;
 	int currentRow;
+	int nRows, nCols;
 
 	CAM_HANDLE camHandle;
 	FACTORY_HANDLE factoryHandle;

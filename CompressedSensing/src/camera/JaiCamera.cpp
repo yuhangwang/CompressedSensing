@@ -22,13 +22,23 @@ using namespace cv;
 using namespace CS::camera;
 using namespace CS::exception;
 
-JaiCamera::JaiCamera(int imageWidth, int imageHeight, double measurementRatio): 
-	numberOfMeasurements(int(ceil(measurementRatio * (double)(imageWidth * imageHeight)))), currentRow(0), measurementComplete(false) {
-	measurementMatrix = cv::Mat::zeros(numberOfMeasurements, imageWidth * imageHeight, CV_8UC1);
+JaiCamera::JaiCamera(int imageWidth, int imageHeight): 
+	currentRow(0), measurementComplete(false) {
+	
 	BOOST_LOG_TRIVIAL(debug) <<"JaiCamera::JaiCamera: measurementMatrix allocated";
 }
 JaiCamera::~JaiCamera() {
 	closeFactoryAndCamera();
+}
+
+void JaiCamera::grab() {
+}
+
+void JaiCamera::stop() {
+}
+
+void JaiCamera::setCallback(void (*callbackFunction)(void *context)) {
+
 }
 
 Mat& JaiCamera::gatherMeasurements() {
@@ -41,7 +51,7 @@ Mat& JaiCamera::gatherMeasurements() {
 
 void JaiCamera::waitUntilMeasurementFinished() {
 	while(!measurementComplete) {
-		Sleep(100);
+		Sleep(50);
 	}
 }
 
@@ -104,7 +114,6 @@ void JaiCamera::streamCBFunc(J_tIMAGE_INFO *pAqImageInfo) {
 }
 
 void JaiCamera::getMeasurementMatrixCBFunc(J_tIMAGE_INFO *pAqImageInfo) {
-	memcpy(measurementMatrix.data, pAqImageInfo->pImageBuffer, pAqImageInfo->iImageSize);
 }
 
 void JaiCamera::openStream() {

@@ -4,25 +4,20 @@
 #include <iostream>
 #include <CL/cl.hpp>
 #include <boost/program_options.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/io.hpp>
+#include <boost/timer/timer.hpp>
 #include "utils/utils.h"
 #include "src/exceptions/Exceptions.h"
 #include "src/camera/CameraFactory.h"
+#include "src/gpu/GPUManager.h"
+#include "src/experiment/ExperimentHandler.h"
 
-
-#include "viennacl/ocl/device.hpp"
-#include "viennacl/ocl/platform.hpp"
-#include "viennacl/scalar.hpp"
-#include "viennacl/vector.hpp"
-#include "viennacl/matrix.hpp"
-#include "viennacl/linalg/prod.hpp"
-#include "viennacl/matrix_proxy.hpp"
-#include "viennacl/linalg/lu.hpp"
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace std;
 using namespace CS;
 using namespace CS::camera;
+using namespace CS::experiment;
 namespace opts = boost::program_options;
 using namespace boost::numeric::ublas;
 
@@ -57,8 +52,11 @@ int main(int argc, char **argv) {
 		int imageHeight = vm["image-height"].as<int>();
 
 		utils::validateInputArguments(imageWidth, imageHeight, measurementRatio);
-		std::shared_ptr<ICamera> pCamera(CameraFactory::getInstance(cameraName, imageWidth, imageHeight, measurementRatio));
-		cv::Mat measurementMatrix = pCamera->gatherMeasurements();
+		std::shared_ptr<ICamera> pCamera(CameraFactory::getInstance(cameraName, imageWidth, imageHeight));
+
+		ExperimentParameters params;
+		params.measurementRatio = measurementRatio;
+		ExperimentHandler handler(pCamera, imageWidth, imageHeight, params);
 
 		cout << viennacl::ocl::device().info();
 

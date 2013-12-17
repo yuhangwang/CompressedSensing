@@ -7,13 +7,13 @@
 using namespace CS::camera;
 using namespace CS::exception;
 
-ICamera* CameraFactory::getInstance(std::string& type, int imageWidth, int imageHeight, double measurementRatio) {
+ICamera* CameraFactory::getInstance(std::string& type, int imageWidth, int imageHeight) {
 	if(type == "JaiCamera") {
 		BOOST_LOG_TRIVIAL(debug) << "JaiCamera created";
-		return new JaiCamera(imageWidth, imageHeight, measurementRatio);
+		return new JaiCamera(imageWidth, imageHeight);
 	}else if(type == "TestCamera") {
 		BOOST_LOG_TRIVIAL(debug) << "TestCamera created";
-		return new TestCamera(imageWidth, imageHeight, measurementRatio);
+		return new TestCamera(imageWidth, imageHeight);
 	}else {
 		throw UnknownTypeException(type);
 	}

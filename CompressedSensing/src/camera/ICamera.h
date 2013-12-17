@@ -4,7 +4,6 @@
 #include <opencv/cv.h>
 #include <opencv2/core/core.hpp>
 
- 
 namespace CS {
 namespace camera {
 
@@ -14,7 +13,10 @@ public:
 	ICamera();
 	virtual ~ICamera()=0;
 	
-	virtual cv::Mat& gatherMeasurements()=0;
+	virtual void grab()=0;
+	virtual void stop()=0;
+
+	virtual void setCallback(void (*callbackFunction)(void* context))=0;
 };
 
 }}
