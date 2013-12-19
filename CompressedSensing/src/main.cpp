@@ -53,13 +53,13 @@ int main(int argc, char **argv) {
 
 		utils::validateInputArguments(imageWidth, imageHeight, measurementRatio);
 		std::shared_ptr<ICamera> pCamera(CameraFactory::getInstance(cameraName, imageWidth, imageHeight));
-		BOOST_LOG_TRIVIAL(debug) << "Number of camera references = "<<pCamera.use_count() <<std::endl;
 		ExperimentParameters params;
 		params.measurementRatio = measurementRatio;
 		params.imageWidth = imageWidth;
 		params.imageHeight = imageHeight;
 
 		ExperimentHandler handler(pCamera, params);
+		BOOST_LOG_TRIVIAL(debug) << "Number of camera references again = "<<pCamera.use_count() <<std::endl;
 		handler.handleExperiment();
 
 		BOOST_LOG_TRIVIAL(info) << "Application successful exit";

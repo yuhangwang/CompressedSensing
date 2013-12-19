@@ -11,7 +11,8 @@ using namespace CS::experiment;
 using namespace CS::camera;
 
 ExperimentHandler::ExperimentHandler(std::shared_ptr<ICamera> _camera, ExperimentParameters& params): framesProcessed(0),
-	framesToProcess((int)ceil(params.measurementRatio * params.imageHeight * params.imageWidth)), camera(_camera.get()) {
+	framesToProcess((int)ceil(params.measurementRatio * params.imageHeight * params.imageWidth)) {
+	camera = std::move(_camera);
 	camera->registerCallback(std::bind(&ExperimentHandler::simpleTransform, this, std::placeholders::_1));
 }
 

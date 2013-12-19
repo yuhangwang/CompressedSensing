@@ -66,6 +66,7 @@ void TestCamera::displayImage() {
 		m.unlock();
 		isNewDataReady = true;
 	}
+	cv::destroyWindow("display");
 	BOOST_LOG_TRIVIAL(debug) << "TestCamera::displayImage finished";
 }
 
