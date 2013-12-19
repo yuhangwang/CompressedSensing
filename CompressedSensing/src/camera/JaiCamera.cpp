@@ -115,10 +115,11 @@ void JaiCamera::streamCBFunc(J_tIMAGE_INFO *pAqImageInfo) {
 }
 
 void JaiCamera::callbackWrapper(J_tIMAGE_INFO *pAqImageInfo) {
-	int imageWidth = pAqImageInfo->iSizeY;
-	int imageHeight = pAqImageInfo->iSizeX;
+	int imageWidth = pAqImageInfo->iSizeX;
+	int imageHeight = pAqImageInfo->iSizeY;
 	unsigned char* data = pAqImageInfo->pImageBuffer;
-	Frame frame(imageWidth, imageHeight, data);
+	unsigned long long timeStamp = pAqImageInfo->iTimeStamp;
+	Frame frame(timeStamp, imageWidth, imageHeight, data);
 	callbackFunction(frame);
 }
 

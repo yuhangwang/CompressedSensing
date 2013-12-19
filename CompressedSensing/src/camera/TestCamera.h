@@ -3,7 +3,10 @@
 
 #include "src/camera/ICamera.h"
 #include <opencv2/core/core.hpp>
-#include <opencv/cv.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <thread>
+#include <mutex>
+#include <atomic>
 
 namespace CS {
 namespace camera {
@@ -19,7 +22,17 @@ public:
 	void registerCallback(std::function<void (Frame& frame)> function);
 
 private:
-	cv::Mat outFile;
+	void loadImage();
+	void displayImage();
+	void processImage();
+	Frame matToFrame(cv::Mat& image);
+	
+	int imageWidth, imageHeight;
+	cv::Mat internalPic;
+	std::mutex m;
+	std::atomic<bool> isGrabbing, isNewDataReady;
+	std::thread displayThread, processingThread;
+	std::function<void (Frame&)> processingFunction;
 };
 
 }}

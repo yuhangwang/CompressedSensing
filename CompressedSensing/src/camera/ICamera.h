@@ -11,12 +11,18 @@ namespace camera {
 
 struct Frame
 {
-	Frame(int imageWidth, int imageHeight, unsigned char* data) {
+	Frame(unsigned long long timeStamp, int imageWidth, int imageHeight, unsigned char* data) {
+		this->timeStamp = timeStamp;
 		this->imageWidth = imageWidth;
 		this->imageHeight = imageHeight;
 		this->data = data;
 	}
 
+	~Frame() {
+		this->data = NULL;
+	}
+
+	unsigned long long timeStamp;
 	int imageWidth;
 	int imageHeight;
 	unsigned char* data;

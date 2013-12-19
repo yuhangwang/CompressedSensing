@@ -53,25 +53,23 @@ int main(int argc, char **argv) {
 
 		utils::validateInputArguments(imageWidth, imageHeight, measurementRatio);
 		std::shared_ptr<ICamera> pCamera(CameraFactory::getInstance(cameraName, imageWidth, imageHeight));
-
+		BOOST_LOG_TRIVIAL(debug) << "Number of camera references = "<<pCamera.use_count() <<std::endl;
 		ExperimentParameters params;
 		params.measurementRatio = measurementRatio;
 		params.imageWidth = imageWidth;
 		params.imageHeight = imageHeight;
 
 		ExperimentHandler handler(pCamera, params);
-
-		cout << viennacl::ocl::device().info();
+		handler.handleExperiment();
 
 		BOOST_LOG_TRIVIAL(info) << "Application successful exit";
-
 	}catch(std::bad_alloc& e) {
 		cerr << "Probably not enough memory: "<<e.what() << "\n";
 	}catch(CS::exception::JaiCameraException& e) {
 		cerr << "Exception in JaiCamera: " << e.what() << "\n";
 	}catch(CS::exception::UnknownTypeException& e) {
 		cerr << "type_error: "<<e.what() << "\n";
-	}catch(range_error& e) {
+	}catch(std::range_error& e) {
 		cerr << "range_error: "<<e.what() << "\n";
 	}catch(std::exception& e) {
 		cerr << "error: "<<e.what() << "\n";
@@ -79,6 +77,5 @@ int main(int argc, char **argv) {
 		cerr << "Exception of unknown type!\n";
 	}
 
-	
 	return 0;
 }
