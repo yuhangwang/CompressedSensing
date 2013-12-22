@@ -1,6 +1,5 @@
 #include "src/camera/TestCamera.h"
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
+#include "src/utils/log.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <iostream>
 #include <exception>
@@ -8,7 +7,7 @@
 using namespace CS::camera;
 
 TestCamera::TestCamera(int imageWidth, int imageHeight) : isGrabbing(false) {
-	BOOST_LOG_TRIVIAL(debug) << "TestCamera construction\n";
+	LOG_DEBUG("");
 	this->imageWidth = imageWidth;
 	this->imageHeight = imageHeight;
 	loadImage();
@@ -16,7 +15,7 @@ TestCamera::TestCamera(int imageWidth, int imageHeight) : isGrabbing(false) {
 TestCamera::~TestCamera() {
 	if(displayThread.joinable()) {displayThread.join();}
 	if(processingThread.joinable()) {processingThread.join();}
-	BOOST_LOG_TRIVIAL(debug) << "TestCamera de-construction\n";
+	LOG_DEBUG("");
 }
 
 
@@ -30,7 +29,7 @@ void TestCamera::stop() {
 	isGrabbing = false;
 	displayThread.join();
 	processingThread.join();
-	BOOST_LOG_TRIVIAL(debug) << "TestCamera stopped gracefully\n";
+	LOG_DEBUG("stopped gracefully");
 }
 
 void TestCamera::registerCallback(std::function<void (Frame& frame)> function) {
@@ -39,17 +38,17 @@ void TestCamera::registerCallback(std::function<void (Frame& frame)> function) {
 
 // private methods
 void TestCamera::loadImage() {
-	BOOST_LOG_TRIVIAL(debug) << "About to load pic in TestCamera\n";
+	LOG_DEBUG("About to load pic");
 	cv::Mat inputPic = cv::imread("../pics/rihanna.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 	if(inputPic.data) {
-		BOOST_LOG_TRIVIAL(debug) << "inputPic loaded\n";
+		LOG_DEBUG("inputPic loaded");
 	}else {
 		throw new std::runtime_error("Could not load test camera picture");
 	}
 	internalPic = cv::Mat(imageHeight, imageWidth, CV_8UC1);
-	BOOST_LOG_TRIVIAL(debug) <<"input type = "<<inputPic.type() << "and internal = "<<internalPic.type()<<std::endl;
+	LOG_DEBUG("input type = "<<inputPic.type() << "and internal = "<<internalPic.type());
 	cv::resize(inputPic, internalPic, cv::Size(imageWidth, imageHeight));
-	BOOST_LOG_TRIVIAL(debug) << "Pic resized\n";
+	LOG_DEBUG("Pic resized");
 }
 
 void TestCamera::displayImage() {
@@ -67,7 +66,7 @@ void TestCamera::displayImage() {
 		isNewDataReady = true;
 	}
 	cv::destroyWindow("display");
-	BOOST_LOG_TRIVIAL(debug) << "TestCamera::displayImage finished";
+	LOG_DEBUG("finished");
 }
 
 void TestCamera::processImage() {
@@ -84,10 +83,10 @@ void TestCamera::processImage() {
 		}
 	}
 
-	BOOST_LOG_TRIVIAL(debug) << "TestCamera::processImage finished";
+	LOG_DEBUG("finished");
 }
 
 Frame TestCamera::matToFrame(cv::Mat& image) {
-	long simulatedTimestamp = boost::posix_time::microsec_clock::local_time().time_of_day().total_milliseconds();
+	unsigned long long simulatedTimestamp = boost::posix_time::microsec_clock::local_time().time_of_day().total_milliseconds();
 	return Frame(simulatedTimestamp, image.size().width, image.size().height, image.data);
 }

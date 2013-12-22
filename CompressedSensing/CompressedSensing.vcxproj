@@ -42,6 +42,7 @@
     <ClInclude Include="src\ocl\ocl.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\targetver.h" />
+    <ClInclude Include="src\utils\log.h" />
     <ClInclude Include="src\utils\mathUtils.h" />
     <ClInclude Include="src\utils\utils.h" />
   </ItemGroup>

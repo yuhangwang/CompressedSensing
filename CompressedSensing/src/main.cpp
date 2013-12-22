@@ -10,6 +10,7 @@
 #include "src/camera/CameraFactory.h"
 #include "src/gpu/GPUManager.h"
 #include "src/experiment/ExperimentHandler.h"
+#include "src/utils/log.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -37,7 +38,7 @@ int main(int argc, char **argv) {
 	string cameraName;
 
 	try {
-		BOOST_LOG_TRIVIAL(info) << "Application start\n";
+		LOG_INFO("Application start");
 		opts::options_description desc("Allowed options");
 		opts::variables_map vm = utils::setAndRunCommandLineArgs(argc, argv, &measurementRatio, &verbose, &cameraName, desc);
 
@@ -59,10 +60,10 @@ int main(int argc, char **argv) {
 		params.imageHeight = imageHeight;
 
 		ExperimentHandler handler(pCamera, params);
-		BOOST_LOG_TRIVIAL(debug) << "Number of camera references again = "<<pCamera.use_count() <<std::endl;
+		LOG_DEBUG("Number of camera references again = "<<pCamera.use_count());
 		handler.handleExperiment();
 
-		BOOST_LOG_TRIVIAL(info) << "Application successful exit";
+		LOG_INFO("Application successful exit");
 	}catch(std::bad_alloc& e) {
 		cerr << "Probably not enough memory: "<<e.what() << "\n";
 	}catch(CS::exception::JaiCameraException& e) {
