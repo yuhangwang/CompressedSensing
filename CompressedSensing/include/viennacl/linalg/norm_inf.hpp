@@ -12,7 +12,7 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
@@ -33,26 +33,26 @@ namespace viennacl
   //
   // generic norm_inf function
   //   uses tag dispatch to identify which algorithm
-  //   should be called 
+  //   should be called
   //
-  namespace linalg 
+  namespace linalg
   {
-    
+
     #ifdef VIENNACL_WITH_UBLAS
     // ----------------------------------------------------
     // UBLAS
     //
     template< typename VectorT >
     typename viennacl::enable_if< viennacl::is_ublas< typename viennacl::traits::tag_of< VectorT >::type >::value,
-                                  typename VectorT::value_type      
-                                >::type    
+                                  typename VectorT::value_type
+                                >::type
     norm_inf(VectorT const& v1)
     {
       return boost::numeric::ublas::norm_inf(v1);
     }
     #endif
-    
-    
+
+
     // ----------------------------------------------------
     // STL
     //
@@ -66,60 +66,47 @@ namespace viennacl
         if (std::fabs(v1[i]) > result)
           result = std::fabs(v1[i]);
       }
-      
+
       return result;
     }
-    
+
     // ----------------------------------------------------
     // VIENNACL
     //
-    template< typename ScalarType, unsigned int alignment >
-    viennacl::scalar_expression< const viennacl::vector<ScalarType, alignment>, 
-                                 const viennacl::vector<ScalarType, alignment>,
+    template< typename ScalarType>
+    viennacl::scalar_expression< const viennacl::vector_base<ScalarType>,
+                                 const viennacl::vector_base<ScalarType>,
                                  viennacl::op_norm_inf >
-    norm_inf(viennacl::vector<ScalarType, alignment> const & v1)
+    norm_inf(viennacl::vector_base<ScalarType> const & v1)
     {
        //std::cout << "viennacl .. " << std::endl;
-      return viennacl::scalar_expression< const viennacl::vector<ScalarType, alignment>, 
-                                          const viennacl::vector<ScalarType, alignment>,
+      return viennacl::scalar_expression< const viennacl::vector_base<ScalarType>,
+                                          const viennacl::vector_base<ScalarType>,
                                           viennacl::op_norm_inf >(v1, v1);
-    }
-
-    template< typename VectorType >
-    viennacl::scalar_expression< const viennacl::vector_range<VectorType>, 
-                                 const viennacl::vector_range<VectorType>,
-                                 viennacl::op_norm_inf >
-    norm_inf(viennacl::vector_range<VectorType> const & vector)
-    {
-      return viennacl::scalar_expression< const viennacl::vector_range<VectorType>, 
-                                          const viennacl::vector_range<VectorType>,
-                                          viennacl::op_norm_inf >(vector, vector);
-    }
-
-    template< typename VectorType >
-    viennacl::scalar_expression< const viennacl::vector_slice<VectorType>, 
-                                 const viennacl::vector_slice<VectorType>,
-                                 viennacl::op_norm_inf >
-    norm_inf(viennacl::vector_slice<VectorType> const & vector)
-    {
-      return viennacl::scalar_expression< const viennacl::vector_slice<VectorType>, 
-                                          const viennacl::vector_slice<VectorType>,
-                                          viennacl::op_norm_inf >(vector, vector);
     }
 
     // with vector expression:
     template <typename LHS, typename RHS, typename OP>
-    viennacl::scalar_expression<const viennacl::vector_expression<const LHS, const RHS, OP>, 
+    viennacl::scalar_expression<const viennacl::vector_expression<const LHS, const RHS, OP>,
                                 const viennacl::vector_expression<const LHS, const RHS, OP>,
                                 viennacl::op_norm_inf>
     norm_inf(viennacl::vector_expression<const LHS, const RHS, OP> const & vector)
     {
-      return viennacl::scalar_expression< const viennacl::vector_expression<const LHS, const RHS, OP>, 
+      return viennacl::scalar_expression< const viennacl::vector_expression<const LHS, const RHS, OP>,
                                           const viennacl::vector_expression<const LHS, const RHS, OP>,
                                           viennacl::op_norm_inf >(vector, vector);
     }
-    
-    
+
+    // with matrix:
+    /*
+    template<typename NumericT, typename F>
+    scalar_expression< const matrix_base<NumericT, F>, const matrix_base<NumericT, F>, op_norm_inf>
+    norm_inf(const matrix<NumericT, F> & A)
+    {
+      return scalar_expression< const matrix_base<NumericT, F>, const matrix_base<NumericT, F>, op_norm_inf>(A, A);
+    }*/
+
+
   } // end namespace linalg
 } // end namespace viennacl
 #endif

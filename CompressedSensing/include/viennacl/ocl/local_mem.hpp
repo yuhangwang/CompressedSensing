@@ -12,7 +12,7 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
@@ -23,6 +23,8 @@
     @brief A local (shared) memory object for OpenCL
 */
 
+#include "viennacl/forwards.h"
+
 namespace viennacl
 {
   namespace ocl
@@ -31,18 +33,18 @@ namespace viennacl
     class local_mem
     {
       public:
-        local_mem(unsigned int s) : size_(s) {}
-        
+        local_mem(vcl_size_t s) : size_(s) {}
+
         /** @brief Returns size in bytes */
-        unsigned int size() const { return size_; }
+        vcl_size_t size() const { return size_; }
 
         /** @brief Sets the size of the local memory in bytes */
-        void size(unsigned int s) { size_ = s; }
+        void size(vcl_size_t s) { size_ = s; }
 
       private:
-        unsigned int size_;
+        vcl_size_t size_;
     };
-    
+
   }
 }
 #endif

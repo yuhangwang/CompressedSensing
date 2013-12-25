@@ -12,7 +12,7 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
@@ -23,7 +23,6 @@
 */
 
 #include "viennacl/forwards.h"
-#include "viennacl/scalar.hpp"
 #include "viennacl/tools/tools.hpp"
 #include "viennacl/meta/predicate.hpp"
 #include "viennacl/meta/enable_if.hpp"
@@ -47,9 +46,9 @@ namespace viennacl
 {
   namespace linalg
   {
-    
-    /** @brief Interface for the generic operation s1 = s2 @ alpha, where s1 and s2 are GPU scalars, @ denotes multiplication or division, and alpha is either a GPU or a CPU scalar 
-     * 
+
+    /** @brief Interface for the generic operation s1 = s2 @ alpha, where s1 and s2 are GPU scalars, @ denotes multiplication or division, and alpha is either a GPU or a CPU scalar
+     *
      * @param s1                The first  (GPU) scalar
      * @param s2                The second (GPU) scalar
      * @param alpha             The scalar alpha in the operation
@@ -63,32 +62,34 @@ namespace viennacl
                                   && viennacl::is_scalar<S2>::value
                                   && viennacl::is_any_scalar<ScalarType1>::value
                                 >::type
-    as(S1 & s1, 
-       S2 const & s2, ScalarType1 const & alpha, std::size_t len_alpha, bool reciprocal_alpha, bool flip_sign_alpha) 
+    as(S1 & s1,
+       S2 const & s2, ScalarType1 const & alpha, vcl_size_t len_alpha, bool reciprocal_alpha, bool flip_sign_alpha)
     {
       switch (viennacl::traits::handle(s1).get_active_handle_id())
       {
         case viennacl::MAIN_MEMORY:
           viennacl::linalg::host_based::as(s1, s2, alpha, len_alpha, reciprocal_alpha, flip_sign_alpha);
           break;
-#ifdef VIENNACL_WITH_OPENCL          
+#ifdef VIENNACL_WITH_OPENCL
         case viennacl::OPENCL_MEMORY:
           viennacl::linalg::opencl::as(s1, s2, alpha, len_alpha, reciprocal_alpha, flip_sign_alpha);
           break;
-#endif          
+#endif
 #ifdef VIENNACL_WITH_CUDA
         case viennacl::CUDA_MEMORY:
           viennacl::linalg::cuda::as(s1, s2, alpha, len_alpha, reciprocal_alpha, flip_sign_alpha);
           break;
-#endif          
+#endif
+        case viennacl::MEMORY_NOT_INITIALIZED:
+          throw memory_exception("not initialised!");
         default:
-          throw "not implemented";
+          throw memory_exception("not implemented");
       }
     }
-    
-    
+
+
     /** @brief Interface for the generic operation s1 = s2 @ alpha + s3 @ beta, where s1, s2 and s3 are GPU scalars, @ denotes multiplication or division, and alpha, beta are either a GPU or a CPU scalar
-     * 
+     *
      * @param s1                The first  (GPU) scalar
      * @param s2                The second (GPU) scalar
      * @param alpha             The scalar alpha in the operation
@@ -110,9 +111,9 @@ namespace viennacl
                                   && viennacl::is_any_scalar<ScalarType1>::value
                                   && viennacl::is_any_scalar<ScalarType2>::value
                                 >::type
-    asbs(S1 & s1, 
-         S2 const & s2, ScalarType1 const & alpha, std::size_t len_alpha, bool reciprocal_alpha, bool flip_sign_alpha,
-         S3 const & s3, ScalarType2 const & beta,  std::size_t len_beta,  bool reciprocal_beta,  bool flip_sign_beta) 
+    asbs(S1 & s1,
+         S2 const & s2, ScalarType1 const & alpha, vcl_size_t len_alpha, bool reciprocal_alpha, bool flip_sign_alpha,
+         S3 const & s3, ScalarType2 const & beta,  vcl_size_t len_beta,  bool reciprocal_beta,  bool flip_sign_beta)
     {
       switch (viennacl::traits::handle(s1).get_active_handle_id())
       {
@@ -121,7 +122,7 @@ namespace viennacl
                                              s2, alpha, len_alpha, reciprocal_alpha, flip_sign_alpha,
                                              s3,  beta, len_beta,  reciprocal_beta,  flip_sign_beta);
           break;
-#ifdef VIENNACL_WITH_OPENCL          
+#ifdef VIENNACL_WITH_OPENCL
         case viennacl::OPENCL_MEMORY:
           viennacl::linalg::opencl::asbs(s1,
                                          s2, alpha, len_alpha, reciprocal_alpha, flip_sign_alpha,
@@ -135,14 +136,16 @@ namespace viennacl
                                        s3,  beta, len_beta,  reciprocal_beta,  flip_sign_beta);
           break;
 #endif
+        case viennacl::MEMORY_NOT_INITIALIZED:
+          throw memory_exception("not initialised!");
         default:
-          throw "not implemented";
+          throw memory_exception("not implemented");
       }
     }
-    
-    
+
+
     /** @brief Interface for the generic operation s1 += s2 @ alpha + s3 @ beta, where s1, s2 and s3 are GPU scalars, @ denotes multiplication or division, and alpha, beta are either a GPU or a CPU scalar
-     * 
+     *
      * @param s1                The first  (GPU) scalar
      * @param s2                The second (GPU) scalar
      * @param alpha             The scalar alpha in the operation
@@ -165,8 +168,8 @@ namespace viennacl
                                   && viennacl::is_any_scalar<ScalarType2>::value
                                 >::type
     asbs_s(S1 & s1,
-           S2 const & s2, ScalarType1 const & alpha, std::size_t len_alpha, bool reciprocal_alpha, bool flip_sign_alpha,
-           S3 const & s3, ScalarType2 const & beta,  std::size_t len_beta,  bool reciprocal_beta,  bool flip_sign_beta) 
+           S2 const & s2, ScalarType1 const & alpha, vcl_size_t len_alpha, bool reciprocal_alpha, bool flip_sign_alpha,
+           S3 const & s3, ScalarType2 const & beta,  vcl_size_t len_beta,  bool reciprocal_beta,  bool flip_sign_beta)
     {
       switch (viennacl::traits::handle(s1).get_active_handle_id())
       {
@@ -175,27 +178,29 @@ namespace viennacl
                                                s2, alpha, len_alpha, reciprocal_alpha, flip_sign_alpha,
                                                s3,  beta, len_beta,  reciprocal_beta,  flip_sign_beta);
           break;
-#ifdef VIENNACL_WITH_OPENCL          
+#ifdef VIENNACL_WITH_OPENCL
         case viennacl::OPENCL_MEMORY:
           viennacl::linalg::opencl::asbs_s(s1,
                                            s2, alpha, len_alpha, reciprocal_alpha, flip_sign_alpha,
                                            s3,  beta, len_beta,  reciprocal_beta,  flip_sign_beta);
           break;
-#endif          
+#endif
 #ifdef VIENNACL_WITH_CUDA
         case viennacl::CUDA_MEMORY:
           viennacl::linalg::cuda::asbs_s(s1,
                                          s2, alpha, len_alpha, reciprocal_alpha, flip_sign_alpha,
                                          s3,  beta, len_beta,  reciprocal_beta,  flip_sign_beta);
           break;
-#endif          
+#endif
+        case viennacl::MEMORY_NOT_INITIALIZED:
+          throw memory_exception("not initialised!");
         default:
-          throw "not implemented";
+          throw memory_exception("not implemented");
       }
     }
-    
-    
-    
+
+
+
     /** @brief Swaps the contents of two scalars
     *
     * @param s1   The first scalar
@@ -212,7 +217,7 @@ namespace viennacl
         case viennacl::MAIN_MEMORY:
           viennacl::linalg::host_based::swap(s1, s2);
           break;
-#ifdef VIENNACL_WITH_OPENCL          
+#ifdef VIENNACL_WITH_OPENCL
         case viennacl::OPENCL_MEMORY:
           viennacl::linalg::opencl::swap(s1, s2);
           break;
@@ -222,12 +227,14 @@ namespace viennacl
           viennacl::linalg::cuda::swap(s1, s2);
           break;
 #endif
+        case viennacl::MEMORY_NOT_INITIALIZED:
+          throw memory_exception("not initialised!");
         default:
-          throw "not implemented";
+          throw memory_exception("not implemented");
       }
     }
 
-    
+
   } //namespace linalg
 } //namespace viennacl
 

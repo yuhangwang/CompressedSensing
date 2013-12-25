@@ -12,7 +12,7 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
@@ -20,7 +20,7 @@
 
 /** @file viennacl/linalg/detail/spai/spai-static.hpp
     @brief Implementation of a static SPAI. Experimental.
-    
+
     SPAI code contributed by Nikolay Lukash
 */
 
@@ -62,7 +62,7 @@ namespace viennacl
     {
       namespace spai
       {
-        
+
         /** @brief Determines if element ind is in set {J}
         * @param J current set
         * @param ind current element
@@ -72,36 +72,35 @@ namespace viennacl
         {
           return (std::find(J.begin(), J.end(), ind) != J.end());
         }
-        
-        
-      
+
+
+
         /********************************* STATIC SPAI FUNCTIONS******************************************/
-        
-        /** @brief Projects solution of LS problem onto original column m 
+
+        /** @brief Projects solution of LS problem onto original column m
         * @param m_in solution of LS
-        * @param J set of non-zero columns 
+        * @param J set of non-zero columns
         * @param m original column of M
         */
         template <typename VectorType, typename SparseVectorType>
         void fanOutVector(const VectorType& m_in, const std::vector<unsigned int>& J, SparseVectorType& m)
         {
           unsigned int  cnt = 0;
-          for (std::size_t i = 0; i < J.size(); ++i) 
+          for (vcl_size_t i = 0; i < J.size(); ++i)
             m[J[i]] = m_in(cnt++);
         }
         /** @brief Solution of linear:R*x=y system by backward substitution
-        * @param R uppertriangular matrix 
+        * @param R uppertriangular matrix
         * @param y right handside vector
         * @param x solution vector
         */
         template <typename MatrixType, typename VectorType>
         void backwardSolve(const MatrixType& R, const VectorType& y, VectorType& x)
         {
-          typedef typename MatrixType::value_type ScalarType;
-          for (long i = R.size2()-1; i >= 0 ; i--) 
+          for (long i = static_cast<long>(R.size2())-1; i >= 0 ; i--)
           {
             x(i) = y(i);
-            for (std::size_t j = i+1; j < R.size2(); ++j) 
+            for (vcl_size_t j = i+1; j < R.size2(); ++j)
                 x(i) -= R(i,j)*x(j);
 
             x(i) /= R(i,i);
@@ -115,7 +114,7 @@ namespace viennacl
         template <typename VectorType, typename ScalarType>
         void projectI(const std::vector<unsigned int>& I, VectorType& y, unsigned int ind)
         {
-          for(std::size_t i = 0; i < I.size(); ++i)
+          for(vcl_size_t i = 0; i < I.size(); ++i)
           {
             //y.resize(y.size()+1);
             if(I[i] == ind)
@@ -124,7 +123,7 @@ namespace viennacl
               y(i) = static_cast<ScalarType>(0.0);
           }
         }
-        
+
         /** @brief Builds index set of projected columns for current column of preconditioner
         * @param v current column of preconditioner
         * @param J output - index set of non-zero columns
@@ -141,7 +140,7 @@ namespace viennacl
             }
             std::sort(J.begin(), J.end());
         }
-        
+
         /** @brief Initialize preconditioner with sparcity pattern = p(A)
         * @param A input matrix
         * @param M output matrix - initialized preconditioner
@@ -160,16 +159,16 @@ namespace viennacl
             }
           }
         }
-        
+
         /** @brief Row projection for matrix A(:,J) -> A(I,J), building index set of non-zero rows
         * @param A_v_c input matrix
         * @param J set of non-zero rows
-        * @param I output matrix 
+        * @param I output matrix
         */
         template <typename SparseVectorType>
         void projectRows(const std::vector<SparseVectorType>& A_v_c, const std::vector<unsigned int>& J, std::vector<unsigned int>& I)
         {
-          for(std::size_t i = 0; i < J.size(); ++i)
+          for(vcl_size_t i = 0; i < J.size(); ++i)
           {
             for(typename SparseVectorType::const_iterator col_it = A_v_c[J[i]].begin(); col_it!=A_v_c[J[i]].end(); ++col_it)
             {
@@ -179,8 +178,8 @@ namespace viennacl
           }
           std::sort(I.begin(), I.end());
         }
-        
-        
+
+
       } //namespace spai
     } //namespace detail
   } //namespace linalg

@@ -12,7 +12,7 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
@@ -20,7 +20,7 @@
 
 /** @file viennacl/linalg/tred2.hpp
 *   @brief optimized CPU tridiagonalization
-* 
+*
 *   Contributed by Alex Christensen.
 */
 
@@ -32,29 +32,29 @@ namespace viennacl
   namespace linalg
   {
     /** @brief Inplace reduction of a hermitian (or real symmetric) to tridiagonal form using householder similarity transforms (preserving eigenvalues)
-     * 
+     *
      * @param A            A dense matrix to be tridiagonalized
      * @param block_size   The block size to be used
      */
     template<typename ScalarType>
-    void inplace_tred2(boost::numeric::ublas::matrix<ScalarType> const & A, std::size_t block_size = 1)
+    void inplace_tred2(boost::numeric::ublas::matrix<ScalarType> const & A, vcl_size_t block_size = 1)
     {
 
 #ifdef VIENNACL_WITH_OPENMP
-      std::size_t num_threads=(std::size_t)omp_get_max_threads();
+      vcl_size_t num_threads=(vcl_size_t)omp_get_max_threads();
       omp_set_num_threads(omp_get_max_threads());
 #else
-      std::size_t num_threads=1;
+      vcl_size_t num_threads=1;
 #endif
 
-      std::size_t n=A.size1();
+      vcl_size_t n=A.size1();
       if(n!=A.size2())
         std::cerr << "ViennaCL: Warning in inplace_tred2(): Matrix is not hermitian (or real symmetric)" << std::endl;
       block_size=std::min(n,block_size);
 
       //get pointers to the value arrays
       ScalarType** rows=new ScalarType*[n];
-      for(std::size_t i=0;i<n;i++)
+      for(vcl_size_t i=0;i<n;i++)
         rows[i]=(ScalarType*)&A(i,0);
 
       //call the optimized CPU code
@@ -62,7 +62,7 @@ namespace viennacl
 
       delete [] rows;
     }
-    
+
   } //namespace linalg
 } //namespace viennacl
 #endif

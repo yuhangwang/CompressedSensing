@@ -12,7 +12,7 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
@@ -20,7 +20,7 @@
 
 /** @file  viennacl/linalg/cuda/matrix_operations_prod.hpp
     @brief Dense matrix-matrix product CUDA kernels reside here.
-    
+
     Note: File created semi-automatically from OpenCL kernels.
 */
 
@@ -31,7 +31,7 @@ namespace viennacl
   {
     namespace cuda
     {
-      
+
       // matrix-matrix multiplication C = A * B
       // matrix layouts: C...col_major, A...col_major, B...col_major
       template <typename T>
@@ -46,7 +46,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -64,29 +64,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
-        size_t aStep = block_size * A_col_inc * A_internal_rows;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
-        size_t bStep = block_size * B_row_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
+        vcl_size_t aStep = block_size * A_col_inc * A_internal_rows;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
+        vcl_size_t bStep = block_size * B_row_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -133,7 +133,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -151,29 +151,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
-        size_t aStep = block_size * A_col_inc * A_internal_rows;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
-        size_t bStep = block_size * B_internal_rows * B_col_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
+        vcl_size_t aStep = block_size * A_col_inc * A_internal_rows;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
+        vcl_size_t bStep = block_size * B_internal_rows * B_col_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -220,7 +220,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -238,29 +238,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
-        size_t aStep = block_size * A_row_inc;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
-        size_t bStep = block_size * B_row_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
+        vcl_size_t aStep = block_size * A_row_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
+        vcl_size_t bStep = block_size * B_row_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -307,7 +307,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -325,29 +325,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
-        size_t aStep = block_size * A_row_inc;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
-        size_t bStep = block_size * B_internal_rows * B_col_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
+        vcl_size_t aStep = block_size * A_row_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
+        vcl_size_t bStep = block_size * B_internal_rows * B_col_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -380,13 +380,13 @@ namespace viennacl
           C[(blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start + ((blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start) * C_internal_rows] = (beta == 0) ? alpha * Csub : alpha * Csub + beta * C[(blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start + ((blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start) * C_internal_rows];
       }
 
-      
-      
+
+
       ////////////////////////////////////////////////////////////////////////////
-      
-      
-      
-      
+
+
+
+
       // matrix-matrix multiplication C = A * B
       // matrix layouts: C...row_major, A...col_major, B...col_major
       template <typename T>
@@ -401,7 +401,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -419,29 +419,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
-        size_t aStep = block_size * A_col_inc * A_internal_rows;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
-        size_t bStep = block_size * B_row_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
+        vcl_size_t aStep = block_size * A_col_inc * A_internal_rows;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
+        vcl_size_t bStep = block_size * B_row_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -488,7 +488,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -506,29 +506,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
-        size_t aStep = block_size * A_col_inc * A_internal_rows;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
-        size_t bStep = block_size * B_internal_rows * B_col_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
+        vcl_size_t aStep = block_size * A_col_inc * A_internal_rows;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
+        vcl_size_t bStep = block_size * B_internal_rows * B_col_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -575,7 +575,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -593,29 +593,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
-        size_t aStep = block_size * A_row_inc;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
-        size_t bStep = block_size * B_row_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
+        vcl_size_t aStep = block_size * A_row_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
+        vcl_size_t bStep = block_size * B_row_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -662,7 +662,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -680,29 +680,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
-        size_t aStep = block_size * A_row_inc;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
-        size_t bStep = block_size * B_internal_rows * B_col_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
+        vcl_size_t aStep = block_size * A_row_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
+        vcl_size_t bStep = block_size * B_internal_rows * B_col_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -736,13 +736,13 @@ namespace viennacl
       }
 
 
-      
-      
+
+
       ////////////////////////////////////////////////////////////////////////////
-      
-      
-      
-      
+
+
+
+
       // matrix-matrix multiplication C = A * B
       // matrix layouts: C...col_major, A...col_major, B...row_major
       template <typename T>
@@ -757,7 +757,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -775,29 +775,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
-        size_t aStep = block_size * A_col_inc * A_internal_rows;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
-        size_t bStep = block_size * B_internal_cols * B_row_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
+        vcl_size_t aStep = block_size * A_col_inc * A_internal_rows;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
+        vcl_size_t bStep = block_size * B_internal_cols * B_row_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -844,7 +844,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -862,29 +862,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
-        size_t aStep = block_size * A_col_inc * A_internal_rows;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
-        size_t bStep = block_size * B_col_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
+        vcl_size_t aStep = block_size * A_col_inc * A_internal_rows;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
+        vcl_size_t bStep = block_size * B_col_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -931,7 +931,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -949,29 +949,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
-        size_t aStep = block_size * A_row_inc;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
-        size_t bStep = block_size * B_internal_cols * B_row_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
+        vcl_size_t aStep = block_size * A_row_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
+        vcl_size_t bStep = block_size * B_internal_cols * B_row_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1018,7 +1018,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1036,29 +1036,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
-        size_t aStep = block_size * A_row_inc;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
-        size_t bStep = block_size * B_col_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
+        vcl_size_t aStep = block_size * A_row_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
+        vcl_size_t bStep = block_size * B_col_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1091,13 +1091,13 @@ namespace viennacl
           C[(blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start + ((blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start) * C_internal_rows] = (beta == 0) ? alpha * Csub : alpha * Csub + beta * C[(blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start + ((blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start) * C_internal_rows];
       }
 
-      
-      
+
+
       ////////////////////////////////////////////////////////////////////////////
-      
-      
-      
-      
+
+
+
+
       // matrix-matrix multiplication C = A * B
       // matrix layouts: C...row_major, A...col_major, B...row_major
       template <typename T>
@@ -1112,7 +1112,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1130,29 +1130,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
-        size_t aStep = block_size * A_col_inc * A_internal_rows;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
-        size_t bStep = block_size * B_internal_cols * B_row_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
+        vcl_size_t aStep = block_size * A_col_inc * A_internal_rows;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
+        vcl_size_t bStep = block_size * B_internal_cols * B_row_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1199,7 +1199,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1217,29 +1217,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
-        size_t aStep = block_size * A_col_inc * A_internal_rows;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
-        size_t bStep = block_size * B_col_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) + A_col_start * A_internal_rows;
+        vcl_size_t aStep = block_size * A_col_inc * A_internal_rows;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
+        vcl_size_t bStep = block_size * B_col_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1286,7 +1286,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1304,29 +1304,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
-        size_t aStep = block_size * A_row_inc;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
-        size_t bStep = block_size * B_internal_cols * B_row_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
+        vcl_size_t aStep = block_size * A_row_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
+        vcl_size_t bStep = block_size * B_internal_cols * B_row_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1373,7 +1373,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1391,29 +1391,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
-        size_t aStep = block_size * A_row_inc;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
-        size_t bStep = block_size * B_col_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) * A_internal_rows + A_row_start;
+        vcl_size_t aStep = block_size * A_row_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
+        vcl_size_t bStep = block_size * B_col_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_row_inc + col_thread_id * A_col_inc * A_internal_rows;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1446,17 +1446,17 @@ namespace viennacl
           C[((blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start) * C_internal_cols + (blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start] = (beta == 0) ? alpha * Csub : alpha * Csub + beta * C[((blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start) * C_internal_cols + (blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start];
       }
 
-      
 
-      
-      
+
+
+
       ////////////////////////////////////////////////////////////////////////////
-      
-      
-      
-      
-      
-      
+
+
+
+
+
+
       // matrix-matrix multiplication C = A * B
       // matrix layouts: C...col_major, A...row_major, B...col_major
       template <typename T>
@@ -1471,7 +1471,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1489,29 +1489,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
-        size_t aStep = block_size * A_col_inc;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
-        size_t bStep = block_size * B_row_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
+        vcl_size_t aStep = block_size * A_col_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
+        vcl_size_t bStep = block_size * B_row_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1558,7 +1558,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1576,29 +1576,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
-        size_t aStep = block_size * A_col_inc;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
-        size_t bStep = block_size * B_internal_rows * B_col_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
+        vcl_size_t aStep = block_size * A_col_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
+        vcl_size_t bStep = block_size * B_internal_rows * B_col_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1645,7 +1645,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1663,29 +1663,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
-        size_t aStep = block_size * A_row_inc * A_internal_cols;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
-        size_t bStep = block_size * B_row_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
+        vcl_size_t aStep = block_size * A_row_inc * A_internal_cols;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
+        vcl_size_t bStep = block_size * B_row_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1732,7 +1732,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1750,29 +1750,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
-        size_t aStep = block_size * A_row_inc * A_internal_cols;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
-        size_t bStep = block_size * B_internal_rows * B_col_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
+        vcl_size_t aStep = block_size * A_row_inc * A_internal_cols;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
+        vcl_size_t bStep = block_size * B_internal_rows * B_col_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1805,14 +1805,14 @@ namespace viennacl
           C[(blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start + ((blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start) * C_internal_rows] = (beta == 0) ? alpha * Csub : alpha * Csub + beta * C[(blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start + ((blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start) * C_internal_rows];
       }
 
-      
-      
-      
+
+
+
       ////////////////////////////////////////////////////////////////////////////
-      
-      
-      
-      
+
+
+
+
       // matrix-matrix multiplication C = A * B
       // matrix layouts: C...row_major, A...row_major, B...col_major
       template <typename T>
@@ -1827,7 +1827,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1845,29 +1845,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
-        size_t aStep = block_size * A_col_inc;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
-        size_t bStep = block_size * B_row_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
+        vcl_size_t aStep = block_size * A_col_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
+        vcl_size_t bStep = block_size * B_row_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -1914,7 +1914,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -1932,29 +1932,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
-        size_t aStep = block_size * A_col_inc;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
-        size_t bStep = block_size * B_internal_rows * B_col_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
+        vcl_size_t aStep = block_size * A_col_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
+        vcl_size_t bStep = block_size * B_internal_rows * B_col_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2001,7 +2001,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2019,29 +2019,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
-        size_t aStep = block_size * A_row_inc * A_internal_cols;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
-        size_t bStep = block_size * B_row_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
+        vcl_size_t aStep = block_size * A_row_inc * A_internal_cols;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) * B_internal_rows + B_row_start;
+        vcl_size_t bStep = block_size * B_row_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2088,7 +2088,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2106,29 +2106,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
-        size_t aStep = block_size * A_row_inc * A_internal_cols;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
-        size_t bStep = block_size * B_internal_rows * B_col_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
+        vcl_size_t aStep = block_size * A_row_inc * A_internal_cols;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) + B_col_start * B_internal_rows;
+        vcl_size_t bStep = block_size * B_internal_rows * B_col_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_row_inc + col_thread_id * B_col_inc *  B_internal_rows;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2161,17 +2161,17 @@ namespace viennacl
           C[((blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start) * C_internal_cols + (blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start] = (beta == 0) ? alpha * Csub : alpha * Csub + beta * C[((blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start) * C_internal_cols + (blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start];
       }
 
-      
 
-      
-      
+
+
+
       ////////////////////////////////////////////////////////////////////////////
-      
-      
-      
-      
-      
-      
+
+
+
+
+
+
       // matrix-matrix multiplication C = A * B
       // matrix layouts: C...col_major, A...row_major, B...row_major
       template <typename T>
@@ -2186,7 +2186,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2204,29 +2204,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
-        size_t aStep = block_size * A_col_inc;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
-        size_t bStep = block_size * B_internal_cols * B_row_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
+        vcl_size_t aStep = block_size * A_col_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
+        vcl_size_t bStep = block_size * B_internal_cols * B_row_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2273,7 +2273,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2291,29 +2291,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
-        size_t aStep = block_size * A_col_inc;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
-        size_t bStep = block_size * B_col_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
+        vcl_size_t aStep = block_size * A_col_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
+        vcl_size_t bStep = block_size * B_col_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2360,7 +2360,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2378,29 +2378,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
-        size_t aStep = block_size * A_row_inc * A_internal_cols;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
-        size_t bStep = block_size * B_internal_cols * B_row_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
+        vcl_size_t aStep = block_size * A_row_inc * A_internal_cols;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
+        vcl_size_t bStep = block_size * B_internal_cols * B_row_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2447,7 +2447,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2465,29 +2465,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
-        size_t aStep = block_size * A_row_inc * A_internal_cols;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
-        size_t bStep = block_size * B_col_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
+        vcl_size_t aStep = block_size * A_row_inc * A_internal_cols;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
+        vcl_size_t bStep = block_size * B_col_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2520,15 +2520,15 @@ namespace viennacl
           C[(blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start + ((blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start) * C_internal_rows] = (beta == 0) ? alpha * Csub : alpha * Csub + beta * C[(blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start + ((blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start) * C_internal_rows];
       }
 
-      
 
-      
-      
+
+
+
       ////////////////////////////////////////////////////////////////////////////
-      
-      
-      
-      
+
+
+
+
       // matrix-matrix multiplication C = A * B
       // matrix layouts: C...row_major, A...row_major, B...row_major
       template <typename T>
@@ -2543,7 +2543,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2561,29 +2561,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
-        size_t aStep = block_size * A_col_inc;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
-        size_t bStep = block_size * B_internal_cols * B_row_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
+        vcl_size_t aStep = block_size * A_col_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
+        vcl_size_t bStep = block_size * B_internal_cols * B_row_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2630,7 +2630,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2648,29 +2648,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
-        size_t aStep = block_size * A_col_inc;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
-        size_t bStep = block_size * B_col_inc;
-        size_t block_num = (A_col_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_row_inc + A_row_start) * A_internal_cols + A_col_start;
+        vcl_size_t aStep = block_size * A_col_inc;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
+        vcl_size_t bStep = block_size * B_col_inc;
+        vcl_size_t block_num = (A_col_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2717,7 +2717,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2735,29 +2735,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
-        size_t aStep = block_size * A_row_inc * A_internal_cols;
-        size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
-        size_t bStep = block_size * B_internal_cols * B_row_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
+        vcl_size_t aStep = block_size * A_row_inc * A_internal_cols;
+        vcl_size_t bBegin = (col_block_id * block_size * B_col_inc + B_col_start) + B_row_start * B_internal_cols;
+        vcl_size_t bStep = block_size * B_internal_cols * B_row_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2804,7 +2804,7 @@ namespace viennacl
                 unsigned int A_col_size,
                 unsigned int A_internal_rows,
                 unsigned int A_internal_cols,
-                const T * B,  
+                const T * B,
                 unsigned int B_row_start,
                 unsigned int B_col_start,
                 unsigned int B_row_inc,
@@ -2822,29 +2822,29 @@ namespace viennacl
                 unsigned int C_row_size,
                 unsigned int C_col_size,
                 unsigned int C_internal_rows,
-                unsigned int C_internal_cols) 
-      { 
+                unsigned int C_internal_cols)
+      {
 
         __shared__ T bufA[272];
         __shared__ T bufB[272];
 
-        size_t block_size = 16;//get_local_size(0);
-        size_t row_block_id = blockIdx.x;
-        size_t col_block_id = blockIdx.y;
-        size_t row_thread_id = threadIdx.x;
-        size_t col_thread_id = threadIdx.y;
-        size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
-        size_t aStep = block_size * A_row_inc * A_internal_cols;
-        size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
-        size_t bStep = block_size * B_col_inc;
-        size_t block_num = (A_row_size + block_size - 1) / block_size;
+        vcl_size_t block_size = 16;//get_local_size(0);
+        vcl_size_t row_block_id = blockIdx.x;
+        vcl_size_t col_block_id = blockIdx.y;
+        vcl_size_t row_thread_id = threadIdx.x;
+        vcl_size_t col_thread_id = threadIdx.y;
+        vcl_size_t aBegin = (row_block_id * block_size * A_col_inc + A_col_start) + A_row_start * A_internal_cols;
+        vcl_size_t aStep = block_size * A_row_inc * A_internal_cols;
+        vcl_size_t bBegin = (col_block_id * block_size * B_row_inc + B_row_start) * B_internal_cols + B_col_start;
+        vcl_size_t bStep = block_size * B_col_inc;
+        vcl_size_t block_num = (A_row_size + block_size - 1) / block_size;
         T Csub = 0;
-        size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
-        size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
+        vcl_size_t aOffset = row_thread_id * A_col_inc + col_thread_id * A_row_inc * A_internal_cols;
+        vcl_size_t bOffset = row_thread_id * B_col_inc + col_thread_id * B_row_inc * B_internal_cols;
 
-        size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
-        size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
-        for (size_t block = 0;
+        vcl_size_t row_thread_id_times_block_size = row_thread_id * (block_size + 1);
+        vcl_size_t col_thread_id_times_block_size = col_thread_id * (block_size + 1);
+        for (vcl_size_t block = 0;
                 block < block_num;
                 ++block)
         {
@@ -2876,8 +2876,8 @@ namespace viennacl
         if ((blockIdx.x * blockDim.x + threadIdx.x) < A_col_size && (blockIdx.y * blockDim.y + threadIdx.y) < B_row_size)
           C[((blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start) * C_internal_cols + (blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start] = (beta == 0) ? alpha * Csub : alpha * Csub + beta * C[((blockIdx.x * blockDim.x + threadIdx.x) * C_row_inc + C_row_start) * C_internal_cols + (blockIdx.y * blockDim.y + threadIdx.y) * C_col_inc + C_col_start];
       }
-      
-      
+
+
     } // namespace cuda
   } //namespace linalg
 } //namespace viennacl

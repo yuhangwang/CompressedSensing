@@ -12,7 +12,7 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
@@ -35,9 +35,8 @@ namespace viennacl
 {
   namespace linalg
   {
-    
-    /** @brief A tag for a row preconditioner
-    */
+
+    /** @brief A tag for a row scaling preconditioner which merely normalizes the equation system such that each row of the system matrix has unit norm. */
     class row_scaling_tag
     {
       public:
@@ -46,15 +45,16 @@ namespace viennacl
         * @param p   Integer selecting the desired row norm.
         */
         row_scaling_tag(unsigned int p = 2) : norm_(p) {}
-        
+
         /** @brief Returns the index p of the l^p-norm (0 ... ||x||_sup, 1... sum(abs(x)), 2... sqrt(sum(x_i^2))). Currently only p=0, p=1, and p=2 supported.*/
         unsigned int norm() const { return norm_; }
-        
+
       private:
         unsigned int norm_;
     };
 
-    
+
+    /** \cond */
     namespace detail
     {
       template <typename T>
@@ -62,24 +62,23 @@ namespace viennacl
       {
         enum { value = false };
       };
-      
+
       template <typename ScalarType, unsigned int ALIGNMENT>
       struct row_scaling_for_viennacl< viennacl::compressed_matrix<ScalarType, ALIGNMENT> >
       {
         enum { value = true };
       };
-      
+
       template <typename ScalarType, unsigned int ALIGNMENT>
       struct row_scaling_for_viennacl< viennacl::coordinate_matrix<ScalarType, ALIGNMENT> >
       {
         enum { value = true };
       };
-      
-      
     }
-    
+    /** \endcond */
 
-    /** @brief Jacobi-type preconditioner class, can be supplied to solve()-routines. This is a diagonal preconditioner with the diagonal entries being (configurable) row norms of the matrix. 
+
+    /** @brief Jacobi-type preconditioner class, can be supplied to solve()-routines. This is a diagonal preconditioner with the diagonal entries being (configurable) row norms of the matrix.
      *
      *  Default implementation for non-native ViennaCL matrices (e.g. uBLAS)
      */
@@ -88,7 +87,7 @@ namespace viennacl
     class row_scaling
     {
       typedef typename MatrixType::value_type      ScalarType;
-      
+
       public:
         /** @brief Constructor for the preconditioner
         *
@@ -100,11 +99,11 @@ namespace viennacl
           assert(mat.size1() == mat.size2() && bool("Size mismatch"));
           init(mat, tag);
         }
-        
+
         void init(MatrixType const & mat, row_scaling_tag const & tag)
         {
           diag_M.resize(mat.size1());  //resize without preserving values
-          
+
           for (typename MatrixType::const_iterator1 row_it = mat.begin1();
                 row_it != mat.end1();
                 ++row_it)
@@ -122,27 +121,27 @@ namespace viennacl
             }
             if (diag_M[row_it.index1()] == 0)
               throw "ViennaCL: Zero row encountered while setting up row scaling preconditioner!";
-            
+
             if (tag.norm() == 2)
               diag_M[row_it.index1()] = std::sqrt(diag_M[row_it.index1()]);
           }
         }
-        
-        
+
+
         /** @brief Apply to res = b - Ax, i.e. row applied vec (right hand side),  */
         template <typename VectorType>
         void apply(VectorType & vec) const
         {
           assert(vec.size() == diag_M.size() && bool("Size mismatch"));
-          for (std::size_t i=0; i<vec.size(); ++i)
+          for (vcl_size_t i=0; i<vec.size(); ++i)
             vec[i] /= diag_M[i];
         }
-        
+
       private:
         std::vector<ScalarType> diag_M;
     };
 
-    
+
     /** @brief Jacobi preconditioner class, can be supplied to solve()-routines.
     *
     *  Specialization for compressed_matrix
@@ -151,19 +150,19 @@ namespace viennacl
     class row_scaling< MatrixType, true>
     {
         typedef typename viennacl::result_of::cpu_value_type<typename MatrixType::value_type>::type  ScalarType;
-        
-      
+
+
       public:
         /** @brief Constructor for the preconditioner
         *
         * @param mat   The system matrix
         * @param tag   A row scaling tag holding the desired norm.
         */
-        row_scaling(MatrixType const & mat, row_scaling_tag const & tag) : diag_M(mat.size1())
+        row_scaling(MatrixType const & mat, row_scaling_tag const & tag) : diag_M(mat.size1(), viennacl::traits::context(mat))
         {
           init(mat, tag);
         }
-        
+
         void init(MatrixType const & mat, row_scaling_tag const & tag)
         {
           switch (tag.norm())
@@ -181,14 +180,14 @@ namespace viennacl
               throw "Unknown norm!";
           }
         }
-        
+
         template <unsigned int ALIGNMENT>
         void apply(viennacl::vector<ScalarType, ALIGNMENT> & vec) const
         {
-          assert(viennacl::traits::size1(diag_M.size()) == viennacl::traits::size(vec) && bool("Size mismatch"));
+          assert(viennacl::traits::size(diag_M) == viennacl::traits::size(vec) && bool("Size mismatch"));
           vec = element_div(vec, diag_M);
         }
-        
+
       private:
         viennacl::vector<ScalarType> diag_M;
     };

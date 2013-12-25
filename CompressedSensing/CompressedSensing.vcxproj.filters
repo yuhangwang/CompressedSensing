@@ -46,10 +46,10 @@
     <ClCompile Include="src\utils\mathUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu\GPUManager.cpp">
+    <ClCompile Include="src\experiment\ExperimentHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\experiment\ExperimentHandler.cpp">
+    <ClCompile Include="src\gpu\GPUSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -84,13 +84,13 @@
     <ClInclude Include="src\utils\mathUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\GPUManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\experiment\ExperimentHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\GPUSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

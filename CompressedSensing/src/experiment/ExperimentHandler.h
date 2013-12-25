@@ -6,15 +6,18 @@
 #include <atomic>
 #include <mutex>
 #include "src/camera/ICamera.h"
+#include "src/gpu/GPUSolver.h"
 #include <opencv2/core/core.hpp>
 
 namespace CS {
 namespace experiment {
 
 struct ExperimentParameters {
+	ExperimentParameters(double ratio, int width, int height): measurementRatio(ratio), imageWidth(width), imageHeight(height) {}
+
+	double measurementRatio;
 	int imageWidth;
 	int imageHeight;
-	double measurementRatio;
 };
 
 class ExperimentHandler {
@@ -29,6 +32,7 @@ private:
 	void simpleTransform(camera::Frame& frame);
 
 	//data
+	CS::gpu::GPUSolver gpuSolver;
 	int framesProcessed;
 	const int framesToProcess;
 	ExperimentParameters parameters;

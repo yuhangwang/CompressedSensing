@@ -12,7 +12,7 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
@@ -21,9 +21,8 @@
 #include "viennacl/vector.hpp"
 #include "viennacl/matrix.hpp"
 
-#include <examples/benchmarks/benchmark-utils.hpp>
-
 #include "viennacl/linalg/qr-method-common.hpp"
+#include "viennacl/linalg/prod.hpp"
 
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -34,7 +33,7 @@
 
 namespace viennacl
 {
-  namespace linalg 
+  namespace linalg
   {
     namespace detail
     {
@@ -46,12 +45,14 @@ namespace viennacl
                         int m
                       )
         {
+          viennacl::ocl::context & ctx = const_cast<viennacl::ocl::context &>(viennacl::traits::opencl_handle(matrix).context());
+
           typedef typename MatrixType::value_type                                   ScalarType;
           typedef typename viennacl::result_of::cpu_value_type<ScalarType>::type    CPU_ScalarType;
-          
-          viennacl::ocl::kernel& kernel = viennacl::ocl::get_kernel(viennacl::linalg::kernels::svd<CPU_ScalarType, 1>::program_name(), SVD_GIVENS_NEXT_KERNEL);
 
-          kernel.global_work_size(0, viennacl::tools::roundUpToNextMultiple<cl_uint>(viennacl::traits::size1(matrix), 256));
+          viennacl::ocl::kernel& kernel = ctx.get_kernel(viennacl::linalg::opencl::kernels::svd<CPU_ScalarType>::program_name(), SVD_GIVENS_NEXT_KERNEL);
+
+          kernel.global_work_size(0, viennacl::tools::align_to_multiple<cl_uint>(cl_uint(viennacl::traits::size1(matrix)), 256));
           kernel.local_work_size(0, 256);
 
           viennacl::ocl::enqueue(kernel(
@@ -59,7 +60,7 @@ namespace viennacl
                                         tmp1,
                                         tmp2,
                                         static_cast<cl_uint>(matrix.size1()),
-                                        static_cast<cl_uint>(matrix.internal_size1()),
+                                        static_cast<cl_uint>(matrix.internal_size2()),
                                         static_cast<cl_uint>(l),
                                         static_cast<cl_uint>(m - 1)
                                 ));
@@ -67,15 +68,15 @@ namespace viennacl
 
 
         // Symmetric tridiagonal QL algorithm.
-        // This is derived from the Algol procedures tql2, by Bowdler, Martin, Reinsch, and Wilkinson, 
+        // This is derived from the Algol procedures tql2, by Bowdler, Martin, Reinsch, and Wilkinson,
         // Handbook for Auto. Comp., Vol.ii-Linear Algebra, and the corresponding Fortran subroutine in EISPACK.
         template <typename SCALARTYPE, unsigned int ALIGNMENT>
         void tql2(viennacl::matrix<SCALARTYPE, row_major, ALIGNMENT> & Q,
                   boost::numeric::ublas::vector<SCALARTYPE> & d,
                   boost::numeric::ublas::vector<SCALARTYPE> & e)
         {
-            int n = Q.size1();
-            
+            int n = static_cast<int>(Q.size1());
+
             boost::numeric::ublas::vector<SCALARTYPE> cs(n), ss(n);
             viennacl::vector<SCALARTYPE> tmp1(n), tmp2(n);
 
@@ -86,7 +87,7 @@ namespace viennacl
 
             SCALARTYPE f = 0;
             SCALARTYPE tst1 = 0;
-            SCALARTYPE eps = 2 * EPS;
+            SCALARTYPE eps = 2 * static_cast<SCALARTYPE>(EPS);
 
             for (int l = 0; l < n; l++)
             {
@@ -164,7 +165,7 @@ namespace viennacl
 
                             givens_next(Q, tmp1, tmp2, l, m);
                         }
-                        
+
                         // Check for convergence.
                     }
                     while (std::fabs(e(l)) > eps * tst1);
@@ -182,7 +183,9 @@ namespace viennacl
                                 SCALARTYPE p
                                 )
         {
-            viennacl::ocl::kernel& kernel = viennacl::ocl::get_kernel(viennacl::linalg::kernels::svd<SCALARTYPE, 1>::program_name(), SVD_FINAL_ITER_UPDATE_KERNEL);
+            viennacl::ocl::context & ctx = const_cast<viennacl::ocl::context &>(viennacl::traits::opencl_handle(A).context());
+
+            viennacl::ocl::kernel& kernel = ctx.get_kernel(viennacl::linalg::opencl::kernels::svd<SCALARTYPE>::program_name(), SVD_FINAL_ITER_UPDATE_KERNEL);
 
             viennacl::ocl::enqueue(kernel(
                                           A,
@@ -195,7 +198,7 @@ namespace viennacl
         }
 
         template <typename SCALARTYPE, typename MatrixT>
-        void update_float_QR_column_gpu(MatrixT& A, 
+        void update_float_QR_column_gpu(MatrixT& A,
                                 const std::vector<SCALARTYPE>& buf,
                                 viennacl::vector<SCALARTYPE>& buf_vcl,
                                 int m,
@@ -204,9 +207,11 @@ namespace viennacl
                                 bool //is_triangular
                                 )
         {
+            viennacl::ocl::context & ctx = const_cast<viennacl::ocl::context &>(viennacl::traits::opencl_handle(A).context());
+
             viennacl::fast_copy(buf, buf_vcl);
-            
-            viennacl::ocl::kernel& kernel = viennacl::ocl::get_kernel(viennacl::linalg::kernels::svd<SCALARTYPE, 1>::program_name(), SVD_UPDATE_QR_COLUMN_KERNEL);
+
+            viennacl::ocl::kernel& kernel = ctx.get_kernel(viennacl::linalg::opencl::kernels::svd<SCALARTYPE>::program_name(), SVD_UPDATE_QR_COLUMN_KERNEL);
 
             viennacl::ocl::enqueue(kernel(
                                           A,
@@ -236,7 +241,7 @@ namespace viennacl
         }
 
         template <typename SCALARTYPE, typename MatrixT>
-        void update_float_QR_column(MatrixT& A, 
+        void update_float_QR_column(MatrixT& A,
                                 const std::vector<SCALARTYPE>& buf,
                                 int m,
                                 int n,
@@ -262,7 +267,7 @@ namespace viennacl
                     bool notlast = (k != n - 1);
 
                     SCALARTYPE p = buf[5 * k] * a_ik + buf[5 * k + 1] * a_ik_1;
-                    
+
                     if (notlast)
                     {
                         a_ik_2 = a_row[k + 2];
@@ -272,7 +277,7 @@ namespace viennacl
 
                     a_row[k] = a_ik - p;
                     a_ik_1 = a_ik_1 - p * buf[5 * k + 3];
-                    
+
                     a_ik = a_ik_1;
                     a_ik_1 = a_ik_2;
                 }
@@ -282,47 +287,48 @@ namespace viennacl
             }
         }
 
+        /** @brief Internal helper class representing a row-major dense matrix used for the QR method for the purpose of computing eigenvalues. */
         template <typename SCALARTYPE>
         class FastMatrix
         {
         public:
-            FastMatrix() 
+            FastMatrix()
             {
                 size_ = 0;
             }
-            
-            FastMatrix(std::size_t sz)
+
+            FastMatrix(vcl_size_t sz, vcl_size_t internal_size) : size_(sz), internal_size_(internal_size)
             {
-                size_ = sz;
-                data.resize(sz * sz);
+                data.resize(internal_size * internal_size);
             }
 
             SCALARTYPE& operator()(int i, int j)
             {
-                return data[i * size_ + j];
+                return data[i * internal_size_ + j];
             }
 
             SCALARTYPE* row(int i)
             {
-                return &data[i * size_];
+                return &data[i * internal_size_];
             }
 
-            SCALARTYPE* begin() 
+            SCALARTYPE* begin()
             {
                 return &data[0];
             }
 
-            SCALARTYPE* end() 
+            SCALARTYPE* end()
             {
                 return &data[0] + data.size();
             }
 
             std::vector<SCALARTYPE> data;
         private:
-            std::size_t size_;
+            vcl_size_t size_;
+            vcl_size_t internal_size_;
         };
 
-        // Nonsymmetric reduction from Hessenberg to real Schur form.   
+        // Nonsymmetric reduction from Hessenberg to real Schur form.
         // This is derived from the Algol procedure hqr2, by Martin and Wilkinson, Handbook for Auto. Comp.,
         // Vol.ii-Linear Algebra, and the corresponding  Fortran subroutine in EISPACK.
         template <typename SCALARTYPE, unsigned int ALIGNMENT>
@@ -333,10 +339,10 @@ namespace viennacl
         {
             transpose(V);
 
-            int nn = vcl_H.size1();
+            int nn = static_cast<int>(vcl_H.size1());
 
-            FastMatrix<SCALARTYPE> H(nn);//, V(nn);
-            
+            FastMatrix<SCALARTYPE> H(nn, vcl_H.internal_size2());//, V(nn);
+
             std::vector<SCALARTYPE> buf(5 * nn);
             viennacl::vector<SCALARTYPE> buf_vcl(5 * nn);
 
@@ -345,7 +351,7 @@ namespace viennacl
 
             int n = nn - 1;
 
-            SCALARTYPE eps = 2 * EPS;
+            SCALARTYPE eps = 2 * static_cast<SCALARTYPE>(EPS);
             SCALARTYPE exshift = 0;
             SCALARTYPE p = 0;
             SCALARTYPE q = 0;
@@ -448,7 +454,7 @@ namespace viennacl
                 }
                 else
                 {
-                    // No convergence yet     
+                    // No convergence yet
 
                     // Form shift
                     x = H(n, n);
@@ -468,8 +474,8 @@ namespace viennacl
                             H(i, i) -= x;
 
                         s = std::fabs(H(n, n - 1)) + std::fabs(H(n - 1, n - 2));
-                        x = y = 0.75 * s;
-                        w = (-0.4375) * s * s;
+                        x = y = SCALARTYPE(0.75) * s;
+                        w = SCALARTYPE(-0.4375) * s * s;
                     }
 
                     // MATLAB's new ad hoc shift
@@ -485,7 +491,7 @@ namespace viennacl
                             for (int i = 0; i <= n; i++)
                                 H(i, i) -= s;
                             exshift += s;
-                            x = y = w = (SCALARTYPE)0.964;
+                            x = y = w = SCALARTYPE(0.964);
                         }
                     }
 
@@ -564,7 +570,7 @@ namespace viennacl
                             buf[5 * k + 3] = q;
                             buf[5 * k + 4] = r;
 
-                        
+
                             SCALARTYPE* a_row_k = H.row(k);
                             SCALARTYPE* a_row_k_1 = H.row(k + 1);
                             SCALARTYPE* a_row_k_2 = H.row(k + 2);
@@ -689,9 +695,9 @@ namespace viennacl
                         H(n - 1, n) = -(H(n, n) - p) / H(n, n - 1);
                     }
                     else
-                    {   
+                    {
                         cdiv<SCALARTYPE>(0, -H(n - 1, n), H(n - 1, n - 1) - p, q, out1, out2);
-                        
+
                         H(n - 1, n - 1) = out1;
                         H(n - 1, n) = out2;
                     }
@@ -736,13 +742,13 @@ namespace viennacl
                                 vi = (d(i) - p) * 2 * q;
                                 if ( (vr == 0) && (vi == 0) )
                                     vr = eps * norm * (std::fabs(w) + std::fabs(q) + std::fabs(x) + std::fabs(y) + std::fabs(z));
-                                
+
                                 cdiv<SCALARTYPE>(x * r - z * ra + q * sa, x * s - z * sa - q * ra, vr, vi, out1, out2);
-                                
+
                                 H(i, n - 1) = out1;
                                 H(i, n) = out2;
 
-                                
+
                                 if (std::fabs(x) > (std::fabs(z) + std::fabs(q)))
                                 {
                                     H(i + 1, n - 1) = (-ra - w * H(i, n - 1) + q * H(i, n)) / x;
@@ -785,15 +791,17 @@ namespace viennacl
                             viennacl::matrix<SCALARTYPE, row_major, ALIGNMENT>& A,
                             viennacl::matrix<SCALARTYPE, row_major, ALIGNMENT>& Q,
                             viennacl::vector<SCALARTYPE, ALIGNMENT>& D,
-                            std::size_t start)
+                            vcl_size_t start)
         {
-            if(start + 2 >= A.size1()) 
+            viennacl::ocl::context & ctx = const_cast<viennacl::ocl::context &>(viennacl::traits::opencl_handle(A).context());
+
+            if(start + 2 >= A.size1())
                 return false;
 
             prepare_householder_vector(A, D, A.size1(), start + 1, start, start + 1, true);
 
             {
-                viennacl::ocl::kernel& kernel = viennacl::ocl::get_kernel(viennacl::linalg::kernels::svd<SCALARTYPE, 1>::program_name(), SVD_HOUSEHOLDER_UPDATE_A_LEFT_KERNEL);
+                viennacl::ocl::kernel& kernel = ctx.get_kernel(viennacl::linalg::opencl::kernels::svd<SCALARTYPE>::program_name(), SVD_HOUSEHOLDER_UPDATE_A_LEFT_KERNEL);
 
                 viennacl::ocl::enqueue(kernel(
                                               A,
@@ -808,7 +816,7 @@ namespace viennacl
             }
 
             {
-                viennacl::ocl::kernel& kernel = viennacl::ocl::get_kernel(viennacl::linalg::kernels::svd<SCALARTYPE, 1>::program_name(), SVD_HOUSEHOLDER_UPDATE_A_RIGHT_KERNEL);
+                viennacl::ocl::kernel& kernel = ctx.get_kernel(viennacl::linalg::opencl::kernels::svd<SCALARTYPE>::program_name(), SVD_HOUSEHOLDER_UPDATE_A_RIGHT_KERNEL);
 
                 viennacl::ocl::enqueue(kernel(
                                               A,
@@ -823,7 +831,7 @@ namespace viennacl
             }
 
             {
-                viennacl::ocl::kernel& kernel = viennacl::ocl::get_kernel(viennacl::linalg::kernels::svd<SCALARTYPE, 1>::program_name(), SVD_HOUSEHOLDER_UPDATE_QL_KERNEL);
+                viennacl::ocl::kernel& kernel = ctx.get_kernel(viennacl::linalg::opencl::kernels::svd<SCALARTYPE>::program_name(), SVD_HOUSEHOLDER_UPDATE_QL_KERNEL);
 
                 viennacl::ocl::enqueue(kernel(
                                                 Q,
@@ -839,14 +847,14 @@ namespace viennacl
         }
 
         template <typename SCALARTYPE, typename F, unsigned int ALIGNMENT>
-        void tridiagonal_reduction(viennacl::matrix<SCALARTYPE, F, ALIGNMENT>& A, 
+        void tridiagonal_reduction(viennacl::matrix<SCALARTYPE, F, ALIGNMENT>& A,
                                     viennacl::matrix<SCALARTYPE, F, ALIGNMENT>& Q)
         {
-            std::size_t sz = A.size1();
+            vcl_size_t sz = A.size1();
 
             viennacl::vector<SCALARTYPE> hh_vector(sz);
 
-            for(std::size_t i = 0; i < sz; i++)
+            for(vcl_size_t i = 0; i < sz; i++)
             {
                 householder_twoside(A, Q, hh_vector, i);
             }
@@ -854,20 +862,22 @@ namespace viennacl
         }
 
         template <typename SCALARTYPE, typename F, unsigned int ALIGNMENT>
-        void qr_method(viennacl::matrix<SCALARTYPE, F, ALIGNMENT> & A, 
+        void qr_method(viennacl::matrix<SCALARTYPE, F, ALIGNMENT> & A,
                        viennacl::matrix<SCALARTYPE, F, ALIGNMENT> & Q,
                        boost::numeric::ublas::vector<SCALARTYPE> & D,
                        boost::numeric::ublas::vector<SCALARTYPE> & E,
                        bool is_symmetric = true)
         {
-            assert(A.size1() == A.size2());
-            
+            viennacl::ocl::context & ctx = const_cast<viennacl::ocl::context &>(viennacl::traits::opencl_handle(A).context());
+
+            assert(A.size1() == A.size2() && bool("Input matrix must be square for QR method!"));
+
             D.resize(A.size1());
             E.resize(A.size1());
 
-            viennacl::linalg::kernels::svd<SCALARTYPE, 1>::init();
+            viennacl::linalg::opencl::kernels::svd<SCALARTYPE>::init(ctx);
 
-            detail::eye(Q);
+            Q = viennacl::identity_matrix<SCALARTYPE>(Q.size1(), ctx);
 
             // reduce to tridiagonal form
             detail::tridiagonal_reduction(A, Q);
@@ -894,7 +904,7 @@ namespace viennacl
             boost::numeric::ublas::matrix<float> eigen_values(A.size1(), A.size1());
             eigen_values.clear();
 
-            for (std::size_t i = 0; i < A.size1(); i++)
+            for (vcl_size_t i = 0; i < A.size1(); i++)
             {
                 if(std::fabs(E(i)) < EPS)
                 {
@@ -910,13 +920,13 @@ namespace viennacl
                 }
             }
 
-            copy(eigen_values, A);          
+            copy(eigen_values, A);
         }
     }
 
 
     template <typename SCALARTYPE, typename F, unsigned int ALIGNMENT>
-    void qr_method_nsm(viennacl::matrix<SCALARTYPE, F, ALIGNMENT>& A, 
+    void qr_method_nsm(viennacl::matrix<SCALARTYPE, F, ALIGNMENT>& A,
                        viennacl::matrix<SCALARTYPE, F, ALIGNMENT>& Q,
                        boost::numeric::ublas::vector<SCALARTYPE>& D,
                        boost::numeric::ublas::vector<SCALARTYPE>& E
@@ -926,7 +936,7 @@ namespace viennacl
     }
 
     template <typename SCALARTYPE, typename F, unsigned int ALIGNMENT>
-    void qr_method_sym(viennacl::matrix<SCALARTYPE, F, ALIGNMENT>& A, 
+    void qr_method_sym(viennacl::matrix<SCALARTYPE, F, ALIGNMENT>& A,
                        viennacl::matrix<SCALARTYPE, F, ALIGNMENT>& Q,
                        boost::numeric::ublas::vector<SCALARTYPE>& D
                       )

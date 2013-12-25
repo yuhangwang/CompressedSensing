@@ -39,11 +39,11 @@ void TestCamera::registerCallback(std::function<void (Frame& frame)> function) {
 // private methods
 void TestCamera::loadImage() {
 	LOG_DEBUG("About to load pic");
-	cv::Mat inputPic = cv::imread("../pics/rihanna.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+	cv::Mat inputPic = cv::imread("D:/Programming/Git/CompressedSensing/CompressedSensing/pics/rihanna.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 	if(inputPic.data) {
 		LOG_DEBUG("inputPic loaded");
 	}else {
-		throw new std::runtime_error("Could not load test camera picture");
+		throw std::runtime_error("Could not load test camera picture. Check if this pic exists in pics directory and if you call application from correct context");
 	}
 	internalPic = cv::Mat(imageHeight, imageWidth, CV_8UC1);
 	LOG_DEBUG("input type = "<<inputPic.type() << "and internal = "<<internalPic.type());

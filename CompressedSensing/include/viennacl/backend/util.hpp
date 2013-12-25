@@ -12,7 +12,7 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
@@ -37,12 +37,13 @@ namespace viennacl
 {
   namespace backend
   {
-    
-    
+
+
 
     namespace detail
     {
 
+      /** @brief Helper struct for converting a type to its OpenCL pendant. */
       template <typename T>
       struct convert_to_opencl
       {
@@ -67,7 +68,7 @@ namespace viennacl
         enum { special = 1 };
       };
 
-      
+
       template <>
       struct convert_to_opencl<unsigned long>
       {
@@ -85,121 +86,122 @@ namespace viennacl
       };
 #endif
 
-      
+
     } //namespace detail
-      
-      
+
+
     /** @brief Helper class implementing an array on the host. Default case: No conversion necessary */
     template <typename T, bool special = detail::convert_to_opencl<T>::special>
     class typesafe_host_array
     {
         typedef T                                              cpu_type;
         typedef typename detail::convert_to_opencl<T>::type    target_type;
-      
+
       public:
         explicit typesafe_host_array() : bytes_buffer_(NULL), buffer_size_(0) {}
-        
-        explicit typesafe_host_array(mem_handle const & handle, std::size_t num = 0) : bytes_buffer_(NULL), buffer_size_(sizeof(cpu_type) * num)
+
+        explicit typesafe_host_array(mem_handle const & handle, vcl_size_t num = 0) : bytes_buffer_(NULL), buffer_size_(sizeof(cpu_type) * num)
         {
           resize(handle, num);
         }
-        
+
         ~typesafe_host_array() { delete[] bytes_buffer_; }
-        
+
         //
         // Resize functionality
         //
-        
+
         /** @brief Resize without initializing the new memory */
-        void raw_resize(mem_handle const & /*handle*/, std::size_t num)
+        void raw_resize(mem_handle const & /*handle*/, vcl_size_t num)
         {
           buffer_size_ = sizeof(cpu_type) * num;
-          
+
           if (num > 0)
           {
             if (bytes_buffer_)
               delete[] bytes_buffer_;
-            
+
             bytes_buffer_ = new char[buffer_size_];
           }
         }
 
         /** @brief Resize including initialization of new memory (cf. std::vector<>) */
-        void resize(mem_handle const & handle, std::size_t num)
+        void resize(mem_handle const & handle, vcl_size_t num)
         {
           raw_resize(handle, num);
-          
+
           if (num > 0)
           {
-            for (std::size_t i=0; i<buffer_size_; ++i)
+            for (vcl_size_t i=0; i<buffer_size_; ++i)
               bytes_buffer_[i] = 0;
           }
         }
-        
+
         //
         // Setter and Getter
         //
-        
+
         template <typename U>
-        void set(std::size_t index, U value)
+        void set(vcl_size_t index, U value)
         {
           reinterpret_cast<cpu_type *>(bytes_buffer_)[index] = static_cast<cpu_type>(value);
         }
 
         void * get() { return reinterpret_cast<void *>(bytes_buffer_); }
-        cpu_type operator[](std::size_t index) const 
+        cpu_type operator[](vcl_size_t index) const
         {
           assert(index < size() && bool("index out of bounds"));
-          
+
           return reinterpret_cast<cpu_type *>(bytes_buffer_)[index];
         }
-        
-        std::size_t raw_size() const { return buffer_size_; }
-        std::size_t element_size() const
+
+        vcl_size_t raw_size() const { return buffer_size_; }
+        vcl_size_t element_size() const
         {
-          return sizeof(cpu_type); 
+          return sizeof(cpu_type);
         }
-        std::size_t size() const { return buffer_size_ / element_size(); }
-        
+        vcl_size_t size() const { return buffer_size_ / element_size(); }
+
       private:
         char * bytes_buffer_;
-        std::size_t buffer_size_;
+        vcl_size_t buffer_size_;
     };
 
-  
-    
-    
+
+
+
     /** @brief Special host array type for conversion between OpenCL types and pure CPU types */
     template <typename T>
     class typesafe_host_array<T, true>
     {
         typedef T                                              cpu_type;
         typedef typename detail::convert_to_opencl<T>::type    target_type;
-      
+
       public:
         explicit typesafe_host_array() : convert_to_opencl_( (default_memory_type() == OPENCL_MEMORY) ? true : false), bytes_buffer_(NULL), buffer_size_(0) {}
-        
-        explicit typesafe_host_array(mem_handle const & handle, std::size_t num = 0) : convert_to_opencl_(false), bytes_buffer_(NULL), buffer_size_(sizeof(cpu_type) * num)
+
+        explicit typesafe_host_array(mem_handle const & handle, vcl_size_t num = 0) : convert_to_opencl_(false), bytes_buffer_(NULL), buffer_size_(sizeof(cpu_type) * num)
         {
           resize(handle, num);
         }
-        
+
         ~typesafe_host_array() { delete[] bytes_buffer_; }
-        
+
         //
         // Resize functionality
         //
-        
+
         /** @brief Resize without initializing the new memory */
-        void raw_resize(mem_handle const & handle, std::size_t num)
+        void raw_resize(mem_handle const & handle, vcl_size_t num)
         {
           buffer_size_ = sizeof(cpu_type) * num;
-          
+          (void)handle; //silence unused variable warning if compiled without OpenCL support
+
 #ifdef VIENNACL_WITH_OPENCL
           memory_types mem_type = handle.get_active_handle_id();
           if (mem_type == MEMORY_NOT_INITIALIZED)
             mem_type = default_memory_type();
-          
+
           if (mem_type == OPENCL_MEMORY)
           {
             convert_to_opencl_ = true;
@@ -211,29 +213,29 @@ namespace viennacl
           {
             if (bytes_buffer_)
               delete[] bytes_buffer_;
-            
+
             bytes_buffer_ = new char[buffer_size_];
           }
         }
 
         /** @brief Resize including initialization of new memory (cf. std::vector<>) */
-        void resize(mem_handle const & handle, std::size_t num)
+        void resize(mem_handle const & handle, vcl_size_t num)
         {
           raw_resize(handle, num);
-          
+
           if (num > 0)
           {
-            for (std::size_t i=0; i<buffer_size_; ++i)
+            for (vcl_size_t i=0; i<buffer_size_; ++i)
               bytes_buffer_[i] = 0;
           }
         }
-        
+
         //
         // Setter and Getter
         //
-        
+
         template <typename U>
-        void set(std::size_t index, U value)
+        void set(vcl_size_t index, U value)
         {
 #ifdef VIENNACL_WITH_OPENCL
           if (convert_to_opencl_)
@@ -244,7 +246,7 @@ namespace viennacl
         }
 
         void * get() { return reinterpret_cast<void *>(bytes_buffer_); }
-        cpu_type operator[](std::size_t index) const 
+        cpu_type operator[](vcl_size_t index) const
         {
           assert(index < size() && bool("index out of bounds"));
 #ifdef VIENNACL_WITH_OPENCL
@@ -253,26 +255,26 @@ namespace viennacl
 #endif
           return reinterpret_cast<cpu_type *>(bytes_buffer_)[index];
         }
-        
-        std::size_t raw_size() const { return buffer_size_; }
-        std::size_t element_size() const
+
+        vcl_size_t raw_size() const { return buffer_size_; }
+        vcl_size_t element_size() const
         {
 #ifdef VIENNACL_WITH_OPENCL
           if (convert_to_opencl_)
             return sizeof(target_type);
 #endif
-          return sizeof(cpu_type); 
+          return sizeof(cpu_type);
         }
-        std::size_t size() const { return buffer_size_ / element_size(); }
-        
+        vcl_size_t size() const { return buffer_size_ / element_size(); }
+
       private:
         bool convert_to_opencl_;
         char * bytes_buffer_;
-        std::size_t buffer_size_;
+        vcl_size_t buffer_size_;
     };
-    
+
   } //backend
 
-  
+
 } //viennacl
 #endif

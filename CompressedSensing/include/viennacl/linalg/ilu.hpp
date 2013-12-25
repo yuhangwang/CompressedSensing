@@ -12,13 +12,13 @@
                             -----------------
 
    Project Head:    Karl Rupp                   rupp@iue.tuwien.ac.at
-               
+
    (A list of authors and contributors can be found in the PDF manual)
 
    License:         MIT (X11), see file LICENSE in the base directory
 ============================================================================= */
 
-/** @file ilu.hpp
+/** @file viennacl/linalg/ilu.hpp
     @brief Implementations of incomplete factorization preconditioners. Convenience header file.
 */
 

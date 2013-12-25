@@ -23,7 +23,7 @@
 //
 
 #include <stdexcept>
-#include "CL\cl.h"
+#include "CL/cl.h"
 #include <d3d9.h>
 #include <boost/program_options.hpp>
 #include <boost/log/core.hpp>

@@ -4,7 +4,6 @@
 #include <chrono>
 #include "src/utils/utils.h"
 #include "src/utils/log.h"
-#include <vsmc/opencl/urng.h>
 
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -13,7 +12,7 @@ using namespace CS::experiment;
 using namespace CS::camera;
 
 ExperimentHandler::ExperimentHandler(std::shared_ptr<ICamera> _camera, ExperimentParameters& params): framesProcessed(0),
-	framesToProcess((int)ceil(params.measurementRatio * params.imageHeight * params.imageWidth)), isExperimentEnded(false) {
+	framesToProcess((int)ceil(params.measurementRatio * params.imageHeight * params.imageWidth)), isExperimentEnded(false), parameters(params.measurementRatio, params.imageWidth, params.imageHeight) {
 	this->parameters = params;
 	camera = std::move(_camera);
 	camera->registerCallback(std::bind(&ExperimentHandler::simpleTransform, this, std::placeholders::_1));
@@ -30,11 +29,13 @@ void ExperimentHandler::handleExperiment() {
 //private methods
 
 cv::Mat& ExperimentHandler::gatherMeasurements() {
-	cv::Mat matrix(framesToProcess, parameters.imageHeight * parameters.imageWidth, CV_8UC1);
+	measurementMatrix = cv::Mat(framesToProcess, parameters.imageHeight * parameters.imageWidth, CV_8UC1);
 	
+	gpuSolver.createBinaryMeasurementMatrix(framesToProcess, parameters.imageHeight * parameters.imageWidth, &measurementMatrix);
 
+	std::cout << "measurementMatrix = "<<measurementMatrix << std::endl;
 
-	return matrix;
+	return measurementMatrix;
 }
 
 void ExperimentHandler::simpleTransform(Frame& frame) {
