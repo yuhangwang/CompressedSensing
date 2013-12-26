@@ -11,7 +11,7 @@ using namespace CS::experiment;
 using namespace CS::camera;
 
 ExperimentHandler::ExperimentHandler(std::shared_ptr<ICamera> _camera, ExperimentParameters& params): framesProcessed(0),
-	framesToProcess((int)ceil(params.measurementRatio * params.imageHeight * params.imageWidth)), isExperimentEnded(false), parameters(params.measurementRatio, params.imageWidth, params.imageHeight) {
+	framesToProcess((int)ceil(params.measurementRatio * params.imageHeight * params.imageWidth)), isMeasurementEnded(false), parameters(params.measurementRatio, params.imageWidth, params.imageHeight) {
 	this->parameters = params;
 	singlePixelCameraOutput = cv::Mat(framesToProcess, 1, CV_32S);
 	camera = std::move(_camera);
@@ -40,20 +40,27 @@ void ExperimentHandler::gatherMeasurements() {
 }
 
 void ExperimentHandler::waitUntilGrabbingFinished() {
-	while(!isExperimentEnded) {}
+	{
+		std::unique_lock<std::mutex> lock(measurementMutex);
+		cv.wait(lock, [this] {return isMeasurementEnded;});
+	}
+	LOG_DEBUG("Grabbing finished!");
 }
 
 void ExperimentHandler::simulateSinglePixelCamera(Frame& frame) {
-	int hash = (int)std::this_thread::get_id().hash();
-	LOG_DEBUG("this_thread_hash = "<<hash);
-	image = cv::Mat(1, frame.imageHeight * frame.imageWidth, CV_8UC1);
-	LOG_DEBUG("size measMat.row("<<framesProcessed<<") = "<<measurementMatrix.row(framesProcessed).size() << "imageTaken size = "<<image.size().height * image.size().width);
-	singlePixelCameraOutput.at<int>(framesProcessed,0) = (int)measurementMatrix.row(framesProcessed).dot(image);
-	framesProcessed++;
-	LOG_DEBUG("Frames processed = "<<framesProcessed<<"output["<<framesProcessed-1<<"] = "<<singlePixelCameraOutput.at<int>(framesProcessed-1,0));
-	if(framesProcessed >= framesToProcess) {
-		isExperimentEnded = true;
-		LOG_DEBUG("Experiment ended. Frames processed = "<<framesProcessed<<" toProcess = "<<framesToProcess);
+	if(framesProcessed < framesToProcess) {
+		image = cv::Mat(1, frame.imageHeight * frame.imageWidth, CV_8UC1);
+	
+		singlePixelCameraOutput.at<int>(framesProcessed,0) = (int)measurementMatrix.row(framesProcessed).dot(image);
+		framesProcessed++;
+
+		LOG_DEBUG("hash = "<<(int)std::this_thread::get_id().hash());
+		LOG_DEBUG("size measMat.row("<<framesProcessed-1<<") = "<<measurementMatrix.row(framesProcessed-1).size() << "imageTaken size = "<<image.size().height * image.size().width);
+		LOG_DEBUG("Frames processed = "<<framesProcessed<<"output["<<framesProcessed-1<<"] = "<<singlePixelCameraOutput.at<int>(framesProcessed-1,0));
+		if(framesProcessed >= framesToProcess) {
+			notifyMeasurementEnded();
+			LOG_DEBUG("Experiment ended. Frames processed = "<<framesProcessed<<" toProcess = "<<framesToProcess);
+		}
 	}
 }
 
@@ -66,8 +73,14 @@ void ExperimentHandler::simpleTransform(Frame& frame) {
 	cv::threshold(image, image, 100, 255, CV_THRESH_BINARY);
 
 	framesProcessed++;
-	if(framesProcessed >= framesToProcess) {
-		isExperimentEnded = true;
-	}
+	if(framesProcessed >= framesToProcess) notifyMeasurementEnded();
 	LOG_DEBUG("timestamp = "<<frame.timeStamp<<" diff = "<<diff <<"processed no "<<framesProcessed <<"toProcess = "<<framesToProcess);
+}
+
+void ExperimentHandler::notifyMeasurementEnded() {
+	{
+		std::unique_lock<std::mutex> lock(measurementMutex);
+		isMeasurementEnded = true;
+	}
+	cv.notify_one();
 }

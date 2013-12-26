@@ -5,6 +5,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <condition_variable>
 #include "src/camera/ICamera.h"
 #include "src/gpu/GPUSolver.h"
 #include <opencv2/core/core.hpp>
@@ -34,13 +35,17 @@ private:
 	void simpleTransform(camera::Frame& frame);
 	void simulateSinglePixelCamera(camera::Frame& frame);
 
+	void notifyMeasurementEnded();
+
 	//data
 	CS::gpu::GPUSolver gpuSolver;
 	int framesProcessed;
 	const int framesToProcess;
 	ExperimentParameters parameters;
 	std::shared_ptr<camera::ICamera> camera;
-	std::atomic<bool> isExperimentEnded;
+	std::mutex measurementMutex;
+	std::condition_variable cv;
+	bool isMeasurementEnded;
 	cv::Mat image;
 	cv::Mat singlePixelCameraOutput;
 	cv::Mat measurementMatrix;

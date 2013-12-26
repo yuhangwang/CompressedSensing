@@ -7,6 +7,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <condition_variable>
 
 namespace CS {
 namespace camera {
@@ -22,15 +23,24 @@ public:
 	void registerCallback(std::function<void (Frame& frame)> function);
 
 private:
+	//methods
 	void loadImage();
 	void displayImage();
 	void processImage();
+
 	Frame matToFrame(cv::Mat& image);
-	
+	void waitForNewFrame();
+	void notifyNewFrameReady();
+	void resetNewFrameReady();
+
+	//data
+	int fps;
 	int imageWidth, imageHeight;
 	cv::Mat internalPic;
-	std::mutex m;
-	std::atomic<bool> isGrabbing, isNewDataReady;
+	std::mutex m, dataReadyMutex;
+	std::atomic<bool> isGrabbing;
+	bool isNewDataReady;
+	std::condition_variable dataReadyCV;
 	std::thread displayThread, processingThread;
 	std::function<void (Frame&)> processingFunction;
 };
