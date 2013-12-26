@@ -309,4 +309,6 @@ opts::variables_map setAndRunCommandLineArgs(int argc, char **argv, double* meas
 void validateInputArguments(int, int, double);
 void setLoggingParameters(bool verbose);
 
+
+
 }} //namespace brackets

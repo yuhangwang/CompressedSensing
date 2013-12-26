@@ -28,8 +28,11 @@ public:
 	void handleExperiment();
 private:
 	//methods
-	cv::Mat& gatherMeasurements();
+	void gatherMeasurements();
+
+	void waitUntilGrabbingFinished();
 	void simpleTransform(camera::Frame& frame);
+	void simulateSinglePixelCamera(camera::Frame& frame);
 
 	//data
 	CS::gpu::GPUSolver gpuSolver;
@@ -39,6 +42,7 @@ private:
 	std::shared_ptr<camera::ICamera> camera;
 	std::atomic<bool> isExperimentEnded;
 	cv::Mat image;
+	cv::Mat singlePixelCameraOutput;
 	cv::Mat measurementMatrix;
 	std::thread experimentThread;
 };

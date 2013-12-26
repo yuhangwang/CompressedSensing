@@ -13,6 +13,7 @@ TestCamera::TestCamera(int imageWidth, int imageHeight) : isGrabbing(false) {
 	loadImage();
 }
 TestCamera::~TestCamera() {
+	LOG_DEBUG("joinable query: displayThread = "<<displayThread.joinable()<<" processing thread = "<<processingThread.joinable());
 	if(displayThread.joinable()) {displayThread.join();}
 	if(processingThread.joinable()) {processingThread.join();}
 	LOG_DEBUG("");
@@ -23,6 +24,7 @@ void TestCamera::grab() {
 	isGrabbing = true;
 	displayThread = std::thread(&TestCamera::displayImage, this);
 	processingThread = std::thread(&TestCamera::processImage, this);
+	LOG_DEBUG("Started grabbing and displaying");
 }
 
 void TestCamera::stop() {
@@ -38,7 +40,6 @@ void TestCamera::registerCallback(std::function<void (Frame& frame)> function) {
 
 // private methods
 void TestCamera::loadImage() {
-	LOG_DEBUG("About to load pic");
 	cv::Mat inputPic = cv::imread("D:/Programming/Git/CompressedSensing/CompressedSensing/pics/rihanna.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 	if(inputPic.data) {
 		LOG_DEBUG("inputPic loaded");
@@ -48,13 +49,12 @@ void TestCamera::loadImage() {
 	internalPic = cv::Mat(imageHeight, imageWidth, CV_8UC1);
 	LOG_DEBUG("input type = "<<inputPic.type() << "and internal = "<<internalPic.type());
 	cv::resize(inputPic, internalPic, cv::Size(imageWidth, imageHeight));
-	LOG_DEBUG("Pic resized");
 }
 
 void TestCamera::displayImage() {
 	cv::namedWindow("display", CV_WINDOW_AUTOSIZE);
 	while(isGrabbing) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(30));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		m.lock();
 		cv::imshow("display", internalPic);
 		m.unlock();
@@ -72,6 +72,8 @@ void TestCamera::displayImage() {
 void TestCamera::processImage() {
 	while(isGrabbing) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		int hash = std::this_thread::get_id().hash();
+		LOG_DEBUG("Processing thread hash = "<<hash);
 		if(isNewDataReady) {
 			m.lock();
 			Frame frame = matToFrame(internalPic);

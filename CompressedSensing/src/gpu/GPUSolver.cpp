@@ -15,7 +15,6 @@ void GPUSolver::createBinaryMeasurementMatrix(int rows, int cols, cv::Mat* measu
 
 	GenerationParameters generationParameters = getGenerationParameters(rows, cols);
 	performMatrixGeneration(generationParameters, measurementMatrix);
-
 }
 
 // private methods
@@ -23,6 +22,7 @@ void GPUSolver::createBinaryMeasurementMatrix(int rows, int cols, cv::Mat* measu
 void GPUSolver::performMatrixGeneration(GenerationParameters& parameters, cv::Mat* output) {
 	viennacl::vector<uchar> randomMatrix(std::get<1>(parameters));
 	viennacl::vector<int> seeds(std::get<0>(parameters));
+	LOG_DEBUG("Created viennacl randomMatrix of size "<<randomMatrix.size()<<" and seed vector of size "<<seeds.size());
 
 	initializeSeeds(parameters, &seeds);
 	runRandomGeneratorKernel(parameters, seeds, &randomMatrix);
@@ -38,6 +38,7 @@ void GPUSolver::runRandomGeneratorKernel(GenerationParameters& parameters, vienn
 	randomKernel.global_work_size(0,std::get<0>(parameters));
 
 	viennacl::ocl::enqueue(randomKernel(seeds, *randomMatrix, static_cast<cl_uint>(std::get<2>(parameters)), static_cast<cl_uint>(std::get<1>(parameters))));
+	LOG_DEBUG("generateRandomMatrix kernel enqueued");
 }
 
 void GPUSolver::initializeSeeds(GenerationParameters& parameters, viennacl::vector<int>* seedVector) {

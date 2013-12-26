@@ -1,5 +1,6 @@
 #define __CL_ENABLE_EXCEPTIONS
 
+#include <thread>
 #include <memory>
 #include <iostream>
 #include <CL/cl.hpp>
@@ -33,6 +34,8 @@ namespace opts = boost::program_options;
 #pragma comment (lib, "opencv_imgproc244d.lib")
 #endif
 
+std::thread::id id = std::this_thread::get_id();
+
 int main(int argc, char **argv) {
 	double measurementRatio = 0.0;
 	bool verbose = false;
@@ -40,6 +43,8 @@ int main(int argc, char **argv) {
 
 	try {
 		LOG_INFO("Application start");
+		int hash = (int)id.hash();
+		LOG_DEBUG("main_thread_hash = "<<hash);
 		opts::options_description desc("Allowed options");
 		opts::variables_map vm = utils::setAndRunCommandLineArgs(argc, argv, &measurementRatio, &verbose, &cameraName, desc);
 
