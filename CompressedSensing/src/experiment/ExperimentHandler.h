@@ -7,11 +7,15 @@
 #include <mutex>
 #include <condition_variable>
 #include "src/camera/ICamera.h"
+#include "src/algorithm/ICSAlgorithm.h"
 #include "src/gpu/GPUSolver.h"
 #include <opencv2/core/core.hpp>
 
 namespace CS {
 namespace experiment {
+
+typedef std::shared_ptr<camera::ICamera> SmartCameraPtr;
+typedef std::shared_ptr<algorithm::ICSAlgorithm> SmartAlgorithmPtr;
 
 struct ExperimentParameters {
 	ExperimentParameters(double ratio, int width, int height): measurementRatio(ratio), imageWidth(width), imageHeight(height) {}
@@ -23,7 +27,7 @@ struct ExperimentParameters {
 
 class ExperimentHandler {
 public:
-	ExperimentHandler(std::shared_ptr<camera::ICamera> camera, ExperimentParameters& params);
+	ExperimentHandler(SmartCameraPtr camera, SmartAlgorithmPtr algorithm, ExperimentParameters& params);
 	~ExperimentHandler();
 
 	void handleExperiment();
@@ -43,7 +47,8 @@ private:
 	int framesProcessed;
 	const int framesToProcess;
 	ExperimentParameters parameters;
-	std::shared_ptr<camera::ICamera> camera;
+	SmartCameraPtr camera;
+	SmartAlgorithmPtr recoverer;
 	std::mutex measurementMutex;
 	std::condition_variable cv;
 	bool isMeasurementEnded;

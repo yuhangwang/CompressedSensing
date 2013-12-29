@@ -11,6 +11,7 @@ namespace math {
 	public:
 		static void randperm(int n, int* vec);
 		static std::vector<std::vector<float>> matToStdMatrix(const cv::Mat& A);
+		static void normalizeImage(cv::Mat& input);
 	};
 
 }} //namespace end

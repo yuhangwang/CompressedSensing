@@ -40,6 +40,7 @@ void TestCamera::registerCallback(std::function<void (const Frame& frame)> funct
 
 // private methods
 void TestCamera::loadImage() {
+	//"D:/Programming/Git/CompressedSensing/CompressedSensing/pics/rihanna.jpg"
 	cv::Mat inputPic = cv::imread("D:/Programming/Git/CompressedSensing/CompressedSensing/pics/rihanna.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 	if(inputPic.data) {
 		LOG_DEBUG("inputPic loaded");
@@ -76,7 +77,7 @@ void TestCamera::processImage() {
 		waitForNewFrame();
 		
 		m.lock();
-		long simulatedTimestamp = boost::posix_time::microsec_clock::local_time().time_of_day().total_milliseconds();
+		long simulatedTimestamp = (long)boost::posix_time::microsec_clock::local_time().time_of_day().total_milliseconds();
 		Frame frame(internalPic, simulatedTimestamp);
 		m.unlock();
 

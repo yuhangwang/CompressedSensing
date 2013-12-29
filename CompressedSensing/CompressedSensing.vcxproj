@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\algorithm\AlgorithmFactory.cpp" />
+    <ClCompile Include="src\algorithm\ICSAlgorithm.cpp" />
+    <ClCompile Include="src\algorithm\TvqcAlgorithm.cpp" />
     <ClCompile Include="src\camera\CameraFactory.cpp" />
     <ClCompile Include="src\camera\ICamera.cpp" />
     <ClCompile Include="src\camera\JaiCamera.cpp" />
@@ -32,6 +35,9 @@
     <ClCompile Include="src\utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\algorithm\AlgorithmFactory.h" />
+    <ClInclude Include="src\algorithm\ICSAlgorithm.h" />
+    <ClInclude Include="src\algorithm\TvqcAlgorithm.h" />
     <ClInclude Include="src\camera\CameraFactory.h" />
     <ClInclude Include="src\camera\ICamera.h" />
     <ClInclude Include="src\camera\JaiCamera.h" />

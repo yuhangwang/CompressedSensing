@@ -1,4 +1,6 @@
 #include "src/experiment/ExperimentHandler.h"
+#include "src/utils/mathUtils.h"
+
 #include <Windows.h>
 #include <chrono>
 #include "src/utils/utils.h"
@@ -9,13 +11,16 @@
 
 using namespace CS::experiment;
 using namespace CS::camera;
+using namespace CS::math;
 
-ExperimentHandler::ExperimentHandler(std::shared_ptr<ICamera> _camera, ExperimentParameters& params): framesProcessed(0),
+ExperimentHandler::ExperimentHandler(SmartCameraPtr _camera, SmartAlgorithmPtr _recoverer, ExperimentParameters& params): framesProcessed(0),
 	framesToProcess((int)ceil(params.measurementRatio * params.imageHeight * params.imageWidth)), isMeasurementEnded(false), parameters(params.measurementRatio, params.imageWidth, params.imageHeight) {
 	this->parameters = params;
-	singlePixelCameraOutput = cv::Mat(framesToProcess, 1, CV_32S);
+	singlePixelCameraOutput = cv::Mat(framesToProcess, 1, CV_32FC1);
 	camera = std::move(_camera);
+	recoverer = std::move(_recoverer);
 	camera->registerCallback(std::bind(&ExperimentHandler::simulateSinglePixelCamera, this, std::placeholders::_1));
+	LOG_DEBUG("Number of camera references = "<<camera.use_count());
 }
 
 ExperimentHandler::~ExperimentHandler() {
@@ -25,7 +30,8 @@ ExperimentHandler::~ExperimentHandler() {
 void ExperimentHandler::handleExperiment() {
 	auto cameraOutput = gatherMeasurements();
 	cv::Mat x0 = computeStartingSolution(std::get<0>(cameraOutput), std::get<1>(cameraOutput));
-	debugImageShow(x0);
+	cv::Mat recoveredImage = recoverer->recoverImage(std::get<0>(cameraOutput), std::get<1>(cameraOutput), x0);
+	debugImageShow(recoveredImage);
 }
 
 //private methods
@@ -69,8 +75,9 @@ void ExperimentHandler::waitUntilGrabbingFinished() {
 
 void ExperimentHandler::simulateSinglePixelCamera(const Frame& frame) {
 	if(framesProcessed < framesToProcess) {
-		image = frame.image.reshape(1, 1);
+		image = frame.image.reshape(1, 1); //actually creates a copy. hala OpenCV!
 		
+		MathUtils::normalizeImage(image);
 		LOG_DEBUG("frame.image size"<<frame.image.size()<<" and internal size " <<image.size()<<"types = "<<frame.image.type()<<" and "<<image.type());
 		
 		singlePixelCameraOutput.at<float>(framesProcessed,0) = (float)measurementMatrix.row(framesProcessed).dot(image);

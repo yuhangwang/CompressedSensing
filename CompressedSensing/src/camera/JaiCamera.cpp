@@ -119,6 +119,8 @@ void JaiCamera::callbackWrapper(J_tIMAGE_INFO *pAqImageInfo) {
 	int imageWidth = pAqImageInfo->iSizeX;
 	int imageHeight = pAqImageInfo->iSizeY;
 	unsigned long long timeStamp = pAqImageInfo->iTimeStamp;
+
+	//copy char, convert to float
 	cv::Mat frameMatrix = cv::Mat(imageWidth, imageHeight, CV_8UC1);
 	memcpy(frameMatrix.data, pAqImageInfo->pImageBuffer, imageWidth * imageHeight);
 	frameMatrix.convertTo(frameMatrix, CV_32FC1, 1/255.0);

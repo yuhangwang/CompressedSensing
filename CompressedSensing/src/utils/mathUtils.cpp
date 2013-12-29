@@ -28,3 +28,8 @@ std::vector<std::vector<float>> CS::math::MathUtils::matToStdMatrix(const cv::Ma
 	return stdMatrix;
 }
 
+void CS::math::MathUtils::normalizeImage(cv::Mat& input) {
+	input -= cv::norm(input, cv::NORM_L2);
+	input -= cv::mean(input);
+}
+

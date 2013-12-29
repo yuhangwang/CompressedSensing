@@ -7,12 +7,14 @@
 #include <boost/program_options.hpp>
 #include <boost/timer/timer.hpp>
 
+#include "src/utils/log.h"
 #include "src/utils/utils.h"
 #include "src/exceptions/Exceptions.h"
 #include "src/camera/CameraFactory.h"
+#include "src/algorithm/AlgorithmFactory.h"
 #include "src/gpu/GPUSolver.h"
 #include "src/experiment/ExperimentHandler.h"
-#include "src/utils/log.h"
+
 #include "src/gpu/GPUSolver.h"
 
 #include <opencv2/core/core.hpp>
@@ -21,6 +23,7 @@
 using namespace std;
 using namespace CS;
 using namespace CS::camera;
+using namespace CS::algorithm;
 using namespace CS::experiment;
 namespace opts = boost::program_options;
 
@@ -34,19 +37,16 @@ namespace opts = boost::program_options;
 #pragma comment (lib, "opencv_imgproc244d.lib")
 #endif
 
-std::thread::id id = std::this_thread::get_id();
-
 int main(int argc, char **argv) {
 	double measurementRatio = 0.0;
 	bool verbose = false;
-	string cameraName;
+	string cameraName, algorithmName;
 
 	try {
 		LOG_INFO("Application start");
-		int hash = (int)id.hash();
-		LOG_DEBUG("main_thread_hash = "<<hash);
+		LOG_DEBUG("main_thread_hash = "<<(int)std::this_thread::get_id().hash());
 		opts::options_description desc("Allowed options");
-		opts::variables_map vm = utils::setAndRunCommandLineArgs(argc, argv, &measurementRatio, &verbose, &cameraName, desc);
+		opts::variables_map vm = utils::setAndRunCommandLineArgs(argc, argv, &measurementRatio, &verbose, &cameraName, &algorithmName, desc);
 
 		if(vm.count("help")) {
 			cout << desc << "\n";
@@ -60,10 +60,10 @@ int main(int argc, char **argv) {
 
 		utils::validateInputArguments(imageWidth, imageHeight, measurementRatio);
 		std::shared_ptr<ICamera> pCamera(CameraFactory::getInstance(cameraName, imageWidth, imageHeight));
+		std::shared_ptr<ICSAlgorithm> pAlgorithm(AlgorithmFactory::getInstance(algorithmName));
 		ExperimentParameters params(measurementRatio, imageWidth, imageHeight);
 
-		ExperimentHandler handler(pCamera, params);
-		LOG_DEBUG("Number of camera references again = "<<pCamera.use_count());
+		ExperimentHandler handler(pCamera, pAlgorithm, params);
 		handler.handleExperiment();
 
 		LOG_INFO("Application successful exit");
