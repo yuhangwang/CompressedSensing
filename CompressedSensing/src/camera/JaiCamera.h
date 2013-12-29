@@ -21,9 +21,9 @@ public:
 	void grab();
 	void stop();
 
-	void registerCallback(std::function<void (Frame& frame)>);
+	void registerCallback(std::function<void (const Frame& frame)>);
 private:
-	std::function<void (Frame&)> callbackFunction;
+	std::function<void (const Frame&)> callbackFunction;
 	
 	bool isCallbackRegistered;
 

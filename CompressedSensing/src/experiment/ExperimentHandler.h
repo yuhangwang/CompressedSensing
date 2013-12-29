@@ -29,14 +29,15 @@ public:
 	void handleExperiment();
 private:
 	//methods
-	void gatherMeasurements();
+	std::tuple<cv::Mat&, cv::Mat&> gatherMeasurements();
+	cv::Mat computeStartingSolution(cv::Mat& measurementMatrix, cv::Mat& cameraOutput);
 
 	void waitUntilGrabbingFinished();
-	void simpleTransform(camera::Frame& frame);
-	void simulateSinglePixelCamera(camera::Frame& frame);
+	void simulateSinglePixelCamera(const camera::Frame& frame);
 
 	void notifyMeasurementEnded();
 
+	void debugImageShow(const cv::Mat&);
 	//data
 	CS::gpu::GPUSolver gpuSolver;
 	int framesProcessed;

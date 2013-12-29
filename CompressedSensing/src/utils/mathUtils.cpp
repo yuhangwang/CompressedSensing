@@ -1,4 +1,5 @@
 #include "src/utils/mathUtils.h"
+#include "src/utils/log.h"
 #include <cstdlib>
 
 void CS::math::MathUtils::randperm(int n, int* perm) {
@@ -12,5 +13,18 @@ void CS::math::MathUtils::randperm(int n, int* perm) {
 		perm[j] = perm[i];
 		perm[i] = t;
 	}
+}
+
+std::vector<std::vector<float>> CS::math::MathUtils::matToStdMatrix(const cv::Mat& A) {
+	int height = A.size().height;
+	int width = A.size().width;
+	std::vector<std::vector<float>> stdMatrix(height);
+	LOG_DEBUG("size of mat = ("<<A.size().height<<","<<A.size().width<<")");
+	for(int i = 0; i < height; i++) {
+		stdMatrix[i].resize(width);
+		std::copy(A.data + width * i, A.data + width * i + height, stdMatrix[i].begin());
+	}
+
+	return stdMatrix;
 }
 

@@ -23,13 +23,26 @@ ExperimentHandler::~ExperimentHandler() {
 }
 
 void ExperimentHandler::handleExperiment() {
-	gatherMeasurements();
+	auto cameraOutput = gatherMeasurements();
+	cv::Mat x0 = computeStartingSolution(std::get<0>(cameraOutput), std::get<1>(cameraOutput));
+	debugImageShow(x0);
 }
 
 //private methods
 
-void ExperimentHandler::gatherMeasurements() {
-	measurementMatrix = cv::Mat(framesToProcess, parameters.imageHeight * parameters.imageWidth, CV_8UC1);
+void ExperimentHandler::debugImageShow(const cv::Mat& image) {
+	cv::Mat imShow = image.clone();
+	LOG_DEBUG("image size = ("<<image.size().height<<","<<image.size().width<<")");
+	cv::resize(imShow, imShow, cv::Size(parameters.imageHeight, parameters.imageWidth), 0, 0, cv::INTER_CUBIC);
+	LOG_DEBUG("resized image size = ("<<imShow.size().height<<","<<imShow.size().width<<")");
+	cv::namedWindow("starting solution", cv::WINDOW_AUTOSIZE);
+	cv::imshow("starting solution", imShow);
+	LOG_WARNING("Close window to continue execution!");
+	cv::waitKey();
+}
+
+std::tuple<cv::Mat&, cv::Mat&> ExperimentHandler::gatherMeasurements() {
+	measurementMatrix = cv::Mat(framesToProcess, parameters.imageHeight * parameters.imageWidth, CV_32FC1);
 	gpuSolver.createBinaryMeasurementMatrix(framesToProcess, parameters.imageHeight * parameters.imageWidth, &measurementMatrix);
 	
 	int hash = (int)std::this_thread::get_id().hash();
@@ -37,6 +50,13 @@ void ExperimentHandler::gatherMeasurements() {
 	camera->grab();
 	waitUntilGrabbingFinished();
 	camera->stop();
+
+	return std::make_tuple(std::ref(measurementMatrix), std::ref(singlePixelCameraOutput));
+}
+
+cv::Mat ExperimentHandler::computeStartingSolution(cv::Mat& measurementMatrix, cv::Mat& cameraOutput) {
+	//starting solution = min energy
+	return gpuSolver.transProduct(measurementMatrix, cameraOutput);
 }
 
 void ExperimentHandler::waitUntilGrabbingFinished() {
@@ -47,34 +67,23 @@ void ExperimentHandler::waitUntilGrabbingFinished() {
 	LOG_DEBUG("Grabbing finished!");
 }
 
-void ExperimentHandler::simulateSinglePixelCamera(Frame& frame) {
+void ExperimentHandler::simulateSinglePixelCamera(const Frame& frame) {
 	if(framesProcessed < framesToProcess) {
-		image = cv::Mat(1, frame.imageHeight * frame.imageWidth, CV_8UC1);
-	
-		singlePixelCameraOutput.at<int>(framesProcessed,0) = (int)measurementMatrix.row(framesProcessed).dot(image);
+		image = frame.image.reshape(1, 1);
+		
+		LOG_DEBUG("frame.image size"<<frame.image.size()<<" and internal size " <<image.size()<<"types = "<<frame.image.type()<<" and "<<image.type());
+		
+		singlePixelCameraOutput.at<float>(framesProcessed,0) = (float)measurementMatrix.row(framesProcessed).dot(image);
 		framesProcessed++;
 
 		LOG_DEBUG("hash = "<<(int)std::this_thread::get_id().hash());
 		LOG_DEBUG("size measMat.row("<<framesProcessed-1<<") = "<<measurementMatrix.row(framesProcessed-1).size() << "imageTaken size = "<<image.size().height * image.size().width);
-		LOG_DEBUG("Frames processed = "<<framesProcessed<<"output["<<framesProcessed-1<<"] = "<<singlePixelCameraOutput.at<int>(framesProcessed-1,0));
+		LOG_DEBUG("Frames processed = "<<framesProcessed<<"output["<<framesProcessed-1<<"] = "<<singlePixelCameraOutput.at<float>(framesProcessed-1,0));
 		if(framesProcessed >= framesToProcess) {
 			notifyMeasurementEnded();
 			LOG_DEBUG("Experiment ended. Frames processed = "<<framesProcessed<<" toProcess = "<<framesToProcess);
 		}
 	}
-}
-
-void ExperimentHandler::simpleTransform(Frame& frame) {
-	static unsigned long long prevTimestamp = 0, diff = 0;
-	image = cv::Mat(frame.imageHeight, frame.imageWidth, CV_8UC1);
-	image.data = frame.data;
-	diff = frame.timeStamp - prevTimestamp;
-	prevTimestamp = frame.timeStamp;
-	cv::threshold(image, image, 100, 255, CV_THRESH_BINARY);
-
-	framesProcessed++;
-	if(framesProcessed >= framesToProcess) notifyMeasurementEnded();
-	LOG_DEBUG("timestamp = "<<frame.timeStamp<<" diff = "<<diff <<"processed no "<<framesProcessed <<"toProcess = "<<framesToProcess);
 }
 
 void ExperimentHandler::notifyMeasurementEnded() {

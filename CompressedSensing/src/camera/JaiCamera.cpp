@@ -2,6 +2,7 @@
 #include "src/exceptions/Exceptions.h"
 
 #include <string>
+#include <cstring>
 #include <conio.h>
 #include <iomanip>
 #include <memory>
@@ -51,7 +52,7 @@ void JaiCamera::stop() {
 	J_Image_CloseStream(hThread);
 }
 
-void JaiCamera::registerCallback(std::function<void (Frame& frame)> function) {
+void JaiCamera::registerCallback(std::function<void (const Frame& frame)> function) {
 	callbackFunction = function;
 	isCallbackRegistered = true;
 }
@@ -117,9 +118,12 @@ void JaiCamera::streamCBFunc(J_tIMAGE_INFO *pAqImageInfo) {
 void JaiCamera::callbackWrapper(J_tIMAGE_INFO *pAqImageInfo) {
 	int imageWidth = pAqImageInfo->iSizeX;
 	int imageHeight = pAqImageInfo->iSizeY;
-	unsigned char* data = pAqImageInfo->pImageBuffer;
 	unsigned long long timeStamp = pAqImageInfo->iTimeStamp;
-	Frame frame(timeStamp, imageWidth, imageHeight, data);
+	cv::Mat frameMatrix = cv::Mat(imageWidth, imageHeight, CV_8UC1);
+	memcpy(frameMatrix.data, pAqImageInfo->pImageBuffer, imageWidth * imageHeight);
+	frameMatrix.convertTo(frameMatrix, CV_32FC1, 1/255.0);
+	Frame frame(frameMatrix, timeStamp);
+
 	callbackFunction(frame);
 }
 

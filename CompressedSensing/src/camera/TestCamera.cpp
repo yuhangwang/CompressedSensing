@@ -34,21 +34,22 @@ void TestCamera::stop() {
 	LOG_DEBUG("stopped gracefully");
 }
 
-void TestCamera::registerCallback(std::function<void (Frame& frame)> function) {
+void TestCamera::registerCallback(std::function<void (const Frame& frame)> function) {
 	processingFunction = function;
 }
 
 // private methods
 void TestCamera::loadImage() {
-	cv::Mat inputPic = cv::imread("../pics/rihanna.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+	cv::Mat inputPic = cv::imread("D:/Programming/Git/CompressedSensing/CompressedSensing/pics/rihanna.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 	if(inputPic.data) {
 		LOG_DEBUG("inputPic loaded");
 	}else {
 		throw std::runtime_error("Could not load test camera picture. Check if this pic exists in pics directory and if you call application from correct context");
 	}
-	internalPic = cv::Mat(imageHeight, imageWidth, CV_8UC1);
+	internalPic = cv::Mat(imageHeight, imageWidth, CV_32FC1);
 	LOG_DEBUG("input type = "<<inputPic.type() << "and internal = "<<internalPic.type());
-	cv::resize(inputPic, internalPic, cv::Size(imageWidth, imageHeight));
+	cv::resize(inputPic, inputPic, cv::Size(imageWidth, imageHeight));
+	inputPic.convertTo(internalPic, internalPic.type(), 1/255.0);
 }
 
 void TestCamera::displayImage() {
@@ -75,7 +76,8 @@ void TestCamera::processImage() {
 		waitForNewFrame();
 		
 		m.lock();
-		Frame frame = matToFrame(internalPic);
+		long simulatedTimestamp = boost::posix_time::microsec_clock::local_time().time_of_day().total_milliseconds();
+		Frame frame(internalPic, simulatedTimestamp);
 		m.unlock();
 
 		//simulate callback which has to sync itself with acquiring thread
@@ -84,11 +86,6 @@ void TestCamera::processImage() {
 	}
 
 	LOG_DEBUG("Processing thread hash = "<<(int)std::this_thread::get_id().hash()<<" finished");
-}
-
-Frame TestCamera::matToFrame(cv::Mat& image) {
-	unsigned long long simulatedTimestamp = boost::posix_time::microsec_clock::local_time().time_of_day().total_milliseconds();
-	return Frame(simulatedTimestamp, image.size().width, image.size().height, image.data);
 }
 
 void TestCamera::waitForNewFrame() {

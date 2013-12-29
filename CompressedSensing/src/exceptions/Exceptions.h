@@ -2,6 +2,9 @@
 #define EXCEPTIONS_H
 #include <stdexcept>
 #include <sstream>
+#include <vector>
+#include <map>
+#include <Jai_Factory.h>
 
 using namespace std;
 
@@ -22,6 +25,8 @@ public:
 	JaiCameraException(string msg, int errorCode);
 	virtual const char* what() const throw();
 private:
+	map<int, string> fillMap();
+	map<int, string> errorMessageMap;
 	string functionName;
 	int errorCode;
 	static ostringstream msg;

@@ -20,7 +20,7 @@ public:
 
 	void grab();
 	void stop();
-	void registerCallback(std::function<void (Frame& frame)> function);
+	void registerCallback(std::function<void (const Frame& frame)> function);
 
 private:
 	//methods
@@ -28,7 +28,6 @@ private:
 	void displayImage();
 	void processImage();
 
-	Frame matToFrame(cv::Mat& image);
 	void waitForNewFrame();
 	void notifyNewFrameReady();
 	void resetNewFrameReady();
