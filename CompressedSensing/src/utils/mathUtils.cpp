@@ -28,6 +28,15 @@ std::vector<std::vector<float>> CS::math::MathUtils::matToStdMatrix(const cv::Ma
 	return stdMatrix;
 }
 
+boost::numeric::ublas::matrix<float> CS::math::MathUtils::matToBoostMatrix(const cv::Mat& A) {
+	using namespace boost::numeric::ublas;
+
+	unbounded_array<float> storage(A.size().height * A.size().width);
+	std::copy(A.begin<float>(), A.end<float>(), storage.begin());
+
+	return matrix<float>(A.size().height, A.size().width, storage);
+}
+
 void CS::math::MathUtils::normalizeImage(cv::Mat& input) {
 	input -= cv::norm(input, cv::NORM_L2);
 	input -= cv::mean(input);

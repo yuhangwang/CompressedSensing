@@ -1,6 +1,7 @@
 #ifndef GPU_MANAGER_H
 #define GPU_MANAGER_H
 #define VIENNACL_WITH_OPENCL
+#define VIENNACL_WITH_UBLAS
 //#define VIENNACL_DEBUG_ALL
 
 #include <memory>
@@ -12,6 +13,7 @@
 #include "viennacl/scalar.hpp"
 #include "viennacl/vector.hpp"
 #include "viennacl/matrix.hpp"
+#include "viennacl/linalg/qr.hpp"
 #include "viennacl/linalg/direct_solve.hpp"
 #include "viennacl/linalg/prod.hpp"       //generic matrix-vector product
 #include "viennacl/linalg/norm_2.hpp"     //generic l2-norm for vectors
@@ -37,6 +39,9 @@ private:
 	void performMatrixGeneration(GenerationParameters&, cv::Mat* output);
 	void initializeSeeds(GenerationParameters&, viennacl::vector<int>* seedVector);
 	void runRandomGeneratorKernel(GenerationParameters&, viennacl::vector<int>& seeds, viennacl::vector<float>* randomMatrix);
+	cv::Mat LUSolve(const cv::Mat& A, const cv::Mat& y);
+	cv::Mat QRMinEnergySolve(const cv::Mat& A, const cv::Mat& y);
+	bool isMatrixSquare(const cv::Mat& A);
 
 	//data
 };

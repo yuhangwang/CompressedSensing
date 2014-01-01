@@ -37,6 +37,25 @@ namespace opts = boost::program_options;
 #pragma comment (lib, "opencv_imgproc244d.lib")
 #endif
 
+void tinyTest() {
+	CS::gpu::GPUSolver solver;
+	float data[256];
+	float dataY[16];
+
+	for(int i = 0; i < 16; i++) {
+		for(int j = 0; j < 16; j++) {
+			data[i*16 + j] = 1;
+			if(i == j)
+				data[i*16 + j] = 10;
+		}
+		dataY[i] = 10*(i+1);
+	}
+	cv::Mat A(16,16, CV_32FC1, &data);
+	cv::Mat y(16,1, CV_32FC1, &dataY);
+
+	cv::Mat output = solver.linsolve(A, y);
+}
+
 int main(int argc, char **argv) {
 	double measurementRatio = 0.0;
 	bool verbose = false;
@@ -52,6 +71,8 @@ int main(int argc, char **argv) {
 			cout << desc << "\n";
 			return 0;
 		}
+
+		tinyTest();
 
 		utils::setLoggingParameters(verbose);
 

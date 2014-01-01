@@ -19,6 +19,7 @@
 
 using namespace cv;
 using namespace CS::gpu;
+using namespace CS::math;
 
 // public methods
 
@@ -77,10 +78,70 @@ cv::Mat GPUSolver::transProduct(const cv::Mat& A, const cv::Mat& y) {
 cv::Mat GPUSolver::linsolve(const cv::Mat& A, const cv::Mat& y) {
 	cv::Mat x;
 
+	if(isMatrixSquare(A)) {
+		x = LUSolve(A, y);
+	}else {
+		x = QRMinEnergySolve(A,y);
+	}
+
 	return x;
 }
 
+bool GPUSolver::isMatrixSquare(const cv::Mat& A) {
+	return (A.size().height == A.size().width);
+}
+
 // private methods
+
+cv::Mat GPUSolver::LUSolve(const cv::Mat& A, const cv::Mat& y) {
+	cv::Mat x;
+	std::vector<std::vector<float>> stdMatrix = MathUtils::matToStdMatrix(A);
+	viennacl::matrix<float> gpuMatrix(A.size().height, A.size().width);
+	viennacl::vector<float> gpuVector(y.size().height);
+
+	//copy from host to GPU
+	viennacl::copy(stdMatrix, gpuMatrix);
+	viennacl::copy(y.begin<float>(),y.end<float>(),gpuVector.begin());
+
+	viennacl::linalg::lu_factorize(gpuMatrix);
+	viennacl::linalg::lu_substitute(gpuMatrix, gpuVector);
+
+	x = cv::Mat(y.size().height, 1, y.type());
+
+	viennacl::copy(gpuVector.begin(), gpuVector.end(), x.begin<float>());
+	LOG_DEBUG("x = "<<x);
+	return x;
+}
+
+cv::Mat GPUSolver::QRMinEnergySolve(const cv::Mat& A, const cv::Mat& y) {
+	cv::Mat x;
+	
+	typedef boost::numeric::ublas::matrix<float> BoostMatrix;
+	typedef std::vector<std::vector<float>> StdMatrix;
+	int rows = A.size().height;
+	int columns = A.size().width;
+
+	BoostMatrix boostMatrix = MathUtils::matToBoostMatrix(A);
+	BoostMatrix Q(rows, rows);
+	BoostMatrix R(rows, columns);
+	viennacl::matrix<float> gpuMatrix;
+
+	//copy data to GPU
+	viennacl::copy(boostMatrix, gpuMatrix);
+
+	//fill GPU matrix with Householder vectors. Q, R not stored (implicit)
+	std::vector<float> betas = viennacl::linalg::inplace_qr(gpuMatrix);
+
+	//copy back to CPU
+	viennacl::copy(gpuMatrix, boostMatrix);
+
+	//create explicit Q,R matrices
+	viennacl::linalg::recoverQ(boostMatrix, betas, Q, R);
+
+	LOG_DEBUG("Q = "<<Q<<" R = "<<R);
+
+	return x;
+}
 
 void GPUSolver::performMatrixGeneration(GenerationParameters& parameters, cv::Mat* output) {
 	viennacl::vector<float> randomMatrix(std::get<1>(parameters));

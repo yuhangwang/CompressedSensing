@@ -18,7 +18,7 @@
     <ClCompile Include="test\testmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\camera\TestCamera.cpp">
+    <ClCompile Include="test\gpu\GPUSolverTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

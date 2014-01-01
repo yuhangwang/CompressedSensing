@@ -62,7 +62,9 @@ std::tuple<cv::Mat&, cv::Mat&> ExperimentHandler::gatherMeasurements() {
 
 cv::Mat ExperimentHandler::computeStartingSolution(cv::Mat& measurementMatrix, cv::Mat& cameraOutput) {
 	//starting solution = min energy
-	return gpuSolver.transProduct(measurementMatrix, cameraOutput);
+	cv::Mat returnMatrix = gpuSolver.linsolve(measurementMatrix, cameraOutput);
+
+	return returnMatrix;
 }
 
 void ExperimentHandler::waitUntilGrabbingFinished() {
@@ -77,7 +79,6 @@ void ExperimentHandler::simulateSinglePixelCamera(const Frame& frame) {
 	if(framesProcessed < framesToProcess) {
 		image = frame.image.reshape(1, 1); //actually creates a copy. hala OpenCV!
 		
-		MathUtils::normalizeImage(image);
 		LOG_DEBUG("frame.image size"<<frame.image.size()<<" and internal size " <<image.size()<<"types = "<<frame.image.type()<<" and "<<image.type());
 		
 		singlePixelCameraOutput.at<float>(framesProcessed,0) = (float)measurementMatrix.row(framesProcessed).dot(image);
