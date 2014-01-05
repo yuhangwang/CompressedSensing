@@ -8,7 +8,7 @@
 #include <condition_variable>
 #include "src/camera/ICamera.h"
 #include "src/algorithm/ICSAlgorithm.h"
-#include "src/gpu/GPUSolver.h"
+#include "src/solver/GPUSolver.h"
 #include <opencv2/core/core.hpp>
 
 namespace CS {

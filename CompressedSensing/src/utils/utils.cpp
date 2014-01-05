@@ -589,15 +589,16 @@ const char* OCL_GetErrorString(cl_int error)
 }
 #pragma warning( pop )
 
-opts::variables_map setAndRunCommandLineArgs(int argc, char **argv, double* measurementRatio, bool* verbose, std::string* cameraName, std::string* algorithmName, opts::options_description& desc) {
+opts::variables_map setAndRunCommandLineArgs(int argc, char **argv, double* measurementRatio, bool* verbose, std::string* cameraName, std::string* algorithmName, std::string* solverType, opts::options_description& desc) {
 	desc.add_options()
 		("help", "produce help message")
-		("image-width,w", opts::value<int>(), "set image width")
-		("image-height,h", opts::value<int>(), "set image height")
+		("image-width,w", opts::value<int>()->required(), "set image width")
+		("image-height,h", opts::value<int>()->required(), "set image height")
 		("factor,f", opts::value<double>(measurementRatio)->default_value(0.5), "set M/N ratio")
 		("verbose,v", opts::value<bool>(verbose)->default_value(false), "set for verbose program operation")
 		("camera-name,c", opts::value<std::string>(cameraName)->default_value(std::string("TestCamera")), "run on test image or capture from Jai Camera")
 		("algorithm-name,a", opts::value<std::string>(algorithmName)->default_value(std::string("Tvqc")), "choose algorithm type")
+        ("solver,s", opts::value<std::string>(solverType)->default_value(std::string("GPU")), "choose solver: CPU/GPU")
 		;
 	opts::variables_map vm;
 	opts::store(opts::parse_command_line(argc, argv, desc), vm);

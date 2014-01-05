@@ -28,9 +28,9 @@
     <ClCompile Include="src\camera\TestCamera.cpp" />
     <ClCompile Include="src\exceptions\Exceptions.cpp" />
     <ClCompile Include="src\experiment\ExperimentHandler.cpp" />
-    <ClCompile Include="src\gpu\GPUSolver.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ocl\ocl.cpp" />
+    <ClCompile Include="src\solver\GPUSolver.cpp" />
     <ClCompile Include="src\utils\mathUtils.cpp" />
     <ClCompile Include="src\utils\utils.cpp" />
   </ItemGroup>
@@ -44,8 +44,8 @@
     <ClInclude Include="src\camera\TestCamera.h" />
     <ClInclude Include="src\exceptions\Exceptions.h" />
     <ClInclude Include="src\experiment\ExperimentHandler.h" />
-    <ClInclude Include="src\gpu\GPUSolver.h" />
     <ClInclude Include="src\ocl\ocl.h" />
+    <ClInclude Include="src\solver\GPUSolver.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\targetver.h" />
     <ClInclude Include="src\utils\log.h" />

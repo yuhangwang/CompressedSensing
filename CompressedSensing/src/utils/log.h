@@ -20,7 +20,7 @@
 			oss << msg<<std::endl; \
 			BOOST_LOG_TRIVIAL(level) << oss.str(); \
 		}\
-	}
+    }while(0)
 #endif
 
 #define LOG_TRACE(msg)		LOG(trace, msg)

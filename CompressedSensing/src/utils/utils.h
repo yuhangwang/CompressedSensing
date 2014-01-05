@@ -305,7 +305,7 @@ void BuildFailLog( cl_program program, cl_device_id device_id );
 bool SaveImageAsBMP ( unsigned int* ptr, int width, int height, const char* fileName);
 
 //myUtils
-opts::variables_map setAndRunCommandLineArgs(int argc, char **argv, double* measurementRatio, bool* verbose,std::string* cameraName, std::string* algorithmName, opts::options_description&);
+opts::variables_map setAndRunCommandLineArgs(int argc, char **argv, double* measurementRatio, bool* verbose,std::string* cameraName, std::string* algorithmName,std::string* solverType, opts::options_description&);
 void validateInputArguments(int, int, double);
 void setLoggingParameters(bool verbose);
 

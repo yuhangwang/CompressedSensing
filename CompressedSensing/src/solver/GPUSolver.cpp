@@ -1,4 +1,4 @@
-#include "src/gpu/GPUSolver.h"
+#include "src/solver/GPUSolver.h"
 #include "src/utils/log.h"
 #include "src/utils/mathUtils.h"
 

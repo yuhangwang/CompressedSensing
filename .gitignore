@@ -212,3 +212,13 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+#############
+## Qt Creator
+#############
+
+*.creator
+*.files
+*.includes
+*.config
+*.creator.user

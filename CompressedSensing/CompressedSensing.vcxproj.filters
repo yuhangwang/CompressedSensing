@@ -49,9 +49,6 @@
     <ClCompile Include="src\experiment\ExperimentHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu\GPUSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\algorithm\ICSAlgorithm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -59,6 +56,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\algorithm\AlgorithmFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solver\GPUSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -99,9 +99,6 @@
     <ClInclude Include="src\utils\log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\GPUSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\algorithm\ICSAlgorithm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -109,6 +106,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\algorithm\AlgorithmFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solver\GPUSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
