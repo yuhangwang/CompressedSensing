@@ -13,12 +13,13 @@ using namespace CS::experiment;
 using namespace CS::camera;
 using namespace CS::math;
 
-ExperimentHandler::ExperimentHandler(SmartCameraPtr _camera, SmartAlgorithmPtr _recoverer, ExperimentParameters& params): framesProcessed(0),
+ExperimentHandler::ExperimentHandler(SmartCameraPtr _camera, SmartAlgorithmPtr _recoverer, SmartSolverPtr _solver, ExperimentParameters& params): framesProcessed(0),
 	framesToProcess((int)ceil(params.measurementRatio * params.imageHeight * params.imageWidth)), isMeasurementEnded(false), parameters(params.measurementRatio, params.imageWidth, params.imageHeight) {
 	this->parameters = params;
 	singlePixelCameraOutput = cv::Mat(framesToProcess, 1, CV_32FC1);
 	camera = std::move(_camera);
 	recoverer = std::move(_recoverer);
+	solver = std::move(_solver);
 	camera->registerCallback(std::bind(&ExperimentHandler::simulateSinglePixelCamera, this, std::placeholders::_1));
 	LOG_DEBUG("Number of camera references = "<<camera.use_count());
 }
@@ -49,7 +50,7 @@ void ExperimentHandler::debugImageShow(const cv::Mat& image) {
 
 std::tuple<cv::Mat&, cv::Mat&> ExperimentHandler::gatherMeasurements() {
 	measurementMatrix = cv::Mat(framesToProcess, parameters.imageHeight * parameters.imageWidth, CV_32FC1);
-	gpuSolver.createBinaryMeasurementMatrix(framesToProcess, parameters.imageHeight * parameters.imageWidth, &measurementMatrix);
+	solver->createBinaryMeasurementMatrix(framesToProcess, parameters.imageHeight * parameters.imageWidth, &measurementMatrix);
 	
 	int hash = (int)std::this_thread::get_id().hash();
 	LOG_DEBUG("this_thread_hash = "<<hash);
@@ -62,7 +63,8 @@ std::tuple<cv::Mat&, cv::Mat&> ExperimentHandler::gatherMeasurements() {
 
 cv::Mat ExperimentHandler::computeStartingSolution(cv::Mat& measurementMatrix, cv::Mat& cameraOutput) {
 	//starting solution = min energy
-	cv::Mat returnMatrix = gpuSolver.linsolve(measurementMatrix, cameraOutput);
+	LOG_DEBUG("Compute starting solution start");
+	cv::Mat returnMatrix = solver->linsolve(measurementMatrix, cameraOutput);
 
 	return returnMatrix;
 }

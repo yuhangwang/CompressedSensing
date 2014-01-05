@@ -1,4 +1,6 @@
 #include "src/camera/CameraFactory.h"
+#include "src/camera/JaiCamera.h"
+#include "src/camera/TestCamera.h"
 #include "src/exceptions/Exceptions.h"
 #include "src/utils/utils.h"
 #include <string>

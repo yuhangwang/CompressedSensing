@@ -1,5 +1,5 @@
-#ifndef GPU_MANAGER_H
-#define GPU_MANAGER_H
+#ifndef GPU_SOLVER_H
+#define GPU_SOLVER_H
 #define VIENNACL_WITH_OPENCL
 #define VIENNACL_WITH_UBLAS
 //#define VIENNACL_DEBUG_ALL
@@ -19,19 +19,24 @@
 #include "viennacl/linalg/norm_2.hpp"     //generic l2-norm for vectors
 #include "viennacl/linalg/lu.hpp"
 
+#include "src/solver/ISolver.h"
+
+
 typedef std::vector<std::vector<float>> StdMatrix;
 
 namespace CS {
+namespace solver {
 namespace gpu {
 
 typedef std::tuple<int, int, int> GenerationParameters;
 
-class GPUSolver {
+class GPUSolver : public ISolver {
 public:
 	void createBinaryMeasurementMatrix(int rows, int cols, cv::Mat*);
 	cv::Mat product(const cv::Mat& A, const cv::Mat& y);
 	cv::Mat transProduct(const cv::Mat& A, const cv::Mat& y);
 	cv::Mat linsolve(const cv::Mat& A,const cv::Mat& y);
+	~GPUSolver();
 private:
 	//methods
 	std::string getRandKernelSource();
@@ -47,6 +52,6 @@ private:
 };
 
 
-}} // namespace end
+}}} // namespace end
 
-#endif /*GPU_MANAGER_H*/
+#endif /*GPU_SOLVER_H*/

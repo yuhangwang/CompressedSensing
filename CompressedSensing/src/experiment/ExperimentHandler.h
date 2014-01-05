@@ -8,7 +8,7 @@
 #include <condition_variable>
 #include "src/camera/ICamera.h"
 #include "src/algorithm/ICSAlgorithm.h"
-#include "src/solver/GPUSolver.h"
+#include "src/solver/ISolver.h"
 #include <opencv2/core/core.hpp>
 
 namespace CS {
@@ -16,6 +16,7 @@ namespace experiment {
 
 typedef std::shared_ptr<camera::ICamera> SmartCameraPtr;
 typedef std::shared_ptr<algorithm::ICSAlgorithm> SmartAlgorithmPtr;
+typedef std::shared_ptr<solver::ISolver> SmartSolverPtr;
 
 struct ExperimentParameters {
 	ExperimentParameters(double ratio, int width, int height): measurementRatio(ratio), imageWidth(width), imageHeight(height) {}
@@ -27,7 +28,7 @@ struct ExperimentParameters {
 
 class ExperimentHandler {
 public:
-	ExperimentHandler(SmartCameraPtr camera, SmartAlgorithmPtr algorithm, ExperimentParameters& params);
+	ExperimentHandler(SmartCameraPtr camera, SmartAlgorithmPtr algorithm, SmartSolverPtr solver, ExperimentParameters& params);
 	~ExperimentHandler();
 
 	void handleExperiment();
@@ -43,10 +44,10 @@ private:
 
 	void debugImageShow(const cv::Mat&);
 	//data
-	CS::gpu::GPUSolver gpuSolver;
 	int framesProcessed;
 	const int framesToProcess;
 	ExperimentParameters parameters;
+	SmartSolverPtr solver;
 	SmartCameraPtr camera;
 	SmartAlgorithmPtr recoverer;
 	std::mutex measurementMutex;

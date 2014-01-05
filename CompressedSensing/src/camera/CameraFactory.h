@@ -3,8 +3,7 @@
 
 #include <string>
 #include "src/camera/ICamera.h"
-#include "src/camera/JaiCamera.h"
-#include "src/camera/TestCamera.h"
+
 
 
 namespace CS {

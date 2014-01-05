@@ -10,9 +10,11 @@
 #include "src/utils/log.h"
 #include "src/utils/utils.h"
 #include "src/exceptions/Exceptions.h"
+
 #include "src/camera/CameraFactory.h"
 #include "src/algorithm/AlgorithmFactory.h"
-#include "src/solver/GPUSolver.h"
+#include "src/solver/SolverFactory.h"
+
 #include "src/experiment/ExperimentHandler.h"
 
 #include <opencv2/core/core.hpp>
@@ -23,6 +25,7 @@ using namespace CS;
 using namespace CS::camera;
 using namespace CS::algorithm;
 using namespace CS::experiment;
+using namespace CS::solver;
 namespace opts = boost::program_options;
 
 #ifdef _DEBUG
@@ -59,9 +62,10 @@ int main(int argc, char **argv) {
 		utils::validateInputArguments(imageWidth, imageHeight, measurementRatio);
 		std::shared_ptr<ICamera> pCamera(CameraFactory::getInstance(cameraName, imageWidth, imageHeight));
 		std::shared_ptr<ICSAlgorithm> pAlgorithm(AlgorithmFactory::getInstance(algorithmName));
+		std::shared_ptr<ISolver> pSolver(SolverFactory::getInstance(solverType));
 		ExperimentParameters params(measurementRatio, imageWidth, imageHeight);
 
-		ExperimentHandler handler(pCamera, pAlgorithm, params);
+		ExperimentHandler handler(pCamera, pAlgorithm, pSolver, params);
 		handler.handleExperiment();
 
 		LOG_INFO("Application successful exit");

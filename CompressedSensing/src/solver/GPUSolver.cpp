@@ -18,7 +18,7 @@
 #include <vector>
 
 using namespace cv;
-using namespace CS::gpu;
+using namespace CS::solver::gpu;
 using namespace CS::math;
 
 // public methods
@@ -90,6 +90,8 @@ cv::Mat GPUSolver::linsolve(const cv::Mat& A, const cv::Mat& y) {
 bool GPUSolver::isMatrixSquare(const cv::Mat& A) {
 	return (A.size().height == A.size().width);
 }
+
+GPUSolver::~GPUSolver() {}
 
 // private methods
 

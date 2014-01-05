@@ -1,4 +1,5 @@
 #include "src/exceptions/Exceptions.h"
+#include <Jai_Factory.h>
 
 using namespace std;
 using namespace CS::exception;

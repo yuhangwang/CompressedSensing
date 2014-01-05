@@ -4,7 +4,6 @@
 #include <sstream>
 #include <vector>
 #include <map>
-#include <Jai_Factory.h>
 
 using namespace std;
 
