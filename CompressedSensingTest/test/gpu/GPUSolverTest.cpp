@@ -1,26 +1,31 @@
 #include "gtest/gtest.h"
-#include "src/gpu/GPUSolver.h"
+#include "src/solver/ISolver.h"
+#include "src/solver/GPUSolver.h"
 
-using namespace CS::gpu;
+using namespace CS::solver;
+using namespace CS::solver::gpu;
 
 class GPUSolverTest : public ::testing::Test {
 
 protected:
-	GPUSolverTest() {}
+	GPUSolverTest():solver(new GPUSolver()) {
+	}
 	virtual ~GPUSolverTest() {}
 
 	virtual void SetUp() {
+		solver.reset();
+		solver = std::shared_ptr<ISolver>(new GPUSolver());
 	}
 
 	virtual void TearDown() {
 	}
 
 	//data
-	GPUSolver solver;
+	std::shared_ptr<ISolver> solver;
 };
 
 TEST_F(GPUSolverTest, SolverConstructs) {
-	GPUSolver solver;
+	std::shared_ptr<ISolver>gpuSolver(new GPUSolver());
 	EXPECT_EQ(1,1);
 }
 

@@ -3,6 +3,16 @@
 
 #include "gtest/gtest.h"
 
+#ifdef _DEBUG
+#pragma comment (lib, "opencv_highgui244d.lib")
+#pragma comment (lib, "opencv_core244d.lib")
+#pragma comment (lib, "opencv_imgproc244d.lib")
+#else
+#pragma comment (lib, "opencv_highgui244.lib")
+#pragma comment (lib, "opencv_core244.lib")
+#pragma comment (lib, "opencv_imgproc244d.lib")
+#endif
+
 TEST(sample_test_case, sample_test) {
 	EXPECT_EQ(1,1);
 }
