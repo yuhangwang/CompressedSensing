@@ -1,6 +1,7 @@
 #include "src/solver/GPUSolver.h"
 #include "src/utils/log.h"
 #include "src/utils/mathUtils.h"
+#include "src/utils/utils.h"
 
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/triangular.hpp>
@@ -16,10 +17,16 @@
 #include <sstream>
 #include <random>
 #include <vector>
+#include <cassert>
+
 
 using namespace cv;
 using namespace CS::solver::gpu;
 using namespace CS::math;
+
+using namespace boost::numeric;
+
+typedef viennacl::matrix<float, viennacl::column_major> VCLMatrix;
 
 // public methods
 
@@ -115,32 +122,39 @@ cv::Mat GPUSolver::LUSolve(const cv::Mat& A, const cv::Mat& y) {
 	return x;
 }
 
-cv::Mat GPUSolver::QRMinEnergySolve(const cv::Mat& A, const cv::Mat& y) {
-	cv::Mat x;
+cv::Mat GPUSolver::QRMinEnergySolve(const cv::Mat& A, const cv::Mat& y) {	
+	assert(A.rows%16 == 0); //as long as ViennaCL remains unfixed.
+	//eg A in R(32 x 16)
+    cv::Mat x = cv::Mat(A.cols, 1, A.type());
 	
-	typedef boost::numeric::ublas::matrix<float> BoostMatrix;
-	typedef std::vector<std::vector<float>> StdMatrix;
-	int rows = A.size().height;
-	int columns = A.size().width;
+    ublas::matrix<float> boostA = MathUtils::matToBoostMatrix(A);
 
-	BoostMatrix boostMatrix = MathUtils::matToBoostMatrix(A);
-	BoostMatrix Q(rows, rows);
-	BoostMatrix R(rows, columns);
-	viennacl::matrix<float> gpuMatrix;
+    ublas::matrix<float> Q(A.cols, A.rows); //32x16
+    ublas::matrix<float> R(A.rows, A.rows); //16x16
 
-	//copy data to GPU
-	viennacl::copy(boostMatrix, gpuMatrix);
+    VCLMatrix vcl_A(boostA.size1(), boostA.size2());
+	VCLMatrix vcl_At(boostA.size2(), boostA.size1());
+	ublas::vector<float> ublas_y(y.rows);
 
-	//fill GPU matrix with Householder vectors. Q, R not stored (implicit)
-	std::vector<float> betas = viennacl::linalg::inplace_qr(gpuMatrix);
+    //copy data to GPU
+    viennacl::copy(boostA, vcl_A);
+	
+	//transpose A on GPU
+	vcl_At = viennacl::trans(vcl_A);
 
-	//copy back to CPU
-	viennacl::copy(gpuMatrix, boostMatrix);
+    std::vector<float> betas = viennacl::linalg::inplace_qr(vcl_At);
 
-	//create explicit Q,R matrices
-	viennacl::linalg::recoverQ(boostMatrix, betas, Q, R);
+    //copy back to CPU
+    viennacl::copy(vcl_At, boostA);
 
-	LOG_DEBUG("Q = "<<Q<<" R = "<<R);
+	std::copy(y.begin<float>(), y.end<float>(), ublas_y.begin());
+    viennacl::linalg::recoverQ(boostA, betas, Q, R);
+
+	//check ublas_y size carefully
+	ublas::inplace_solve(trans(R), ublas_y, ublas::upper_tag());
+
+	ublas_y = ublas::prod(Q, ublas_y);
+	std::copy(ublas_y.begin(), ublas_y.end(), x.begin<float>());
 
 	return x;
 }

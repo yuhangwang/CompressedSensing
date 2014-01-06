@@ -11,6 +11,7 @@ namespace test {
 class TestUtils {
 public:
 	static void fillMatByIndex(cv::Mat& A);
+	static void fillSquares(cv::Mat& A);
 
 	static double maxRelativeError(matrix<double> const& m1, matrix<double> const&m2);
 };

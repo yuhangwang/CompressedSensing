@@ -30,9 +30,9 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 
-namespace opts = boost::program_options;
-
 #pragma once
+
+namespace opts = boost::program_options;
 
 namespace CS {
 namespace utils {

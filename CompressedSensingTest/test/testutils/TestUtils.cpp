@@ -3,9 +3,19 @@
 using namespace CS::test;
 
 void TestUtils::fillMatByIndex(cv::Mat& A) {
+	assert(A.type() == CV_32FC1);
     for(int i = 0; i < A.rows; i++) {
         for(int j = 0; j < A.cols; j++) {
             A.at<float>(i,j) = (float)(i * A.rows + j + 1);
+        }
+    }
+}
+
+void TestUtils::fillSquares(cv::Mat& A) {
+	assert(A.type() == CV_32FC1);
+    for(int i = 0; i < A.rows; i++) {
+        for(int j = 0; j < A.cols; j++) {
+            A.at<float>(i,j) = (float)(i * i + j * j);
         }
     }
 }
