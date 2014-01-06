@@ -21,9 +21,13 @@
   <ItemGroup>
     <ClCompile Include="test\gpu\GPUSolverTest.cpp" />
     <ClCompile Include="test\testmain.cpp" />
+    <ClCompile Include="test\testutils\TestUtils.cpp" />
+    <ClCompile Include="test\utils\MathUtilsTest.cpp" />
+    <ClCompile Include="test\viennacl\ViennaCLTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="test\camera\TestCamera.h" />
+    <ClInclude Include="test\testutils\TestUtils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{83D545B4-6167-4211-80AE-4FE2F3601C80}</ProjectGuid>
@@ -93,10 +97,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)include/;$(BOOST_ROOT)/;$(OPENCV_DIR)include\;$(JAI_SDK_INCLUDE);$(ProjectDir);$(INTELOCLSDKROOT)include;$(SolutionDir);$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)include\;$(BOOST_ROOT)/;$(OPENCV_DIR)include\;$(JAI_SDK_INCLUDE);$(ProjectDir);$(INTELOCLSDKROOT)include;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>D_SCL_SECURE_NO_WARNINGS;_VARIADIC_MAX=10;_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

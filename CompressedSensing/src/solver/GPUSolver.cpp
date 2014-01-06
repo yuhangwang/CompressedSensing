@@ -30,11 +30,11 @@ void GPUSolver::createBinaryMeasurementMatrix(int rows, int cols, cv::Mat* measu
 }
 
 cv::Mat GPUSolver::product(const cv::Mat& A, const cv::Mat& y) {
-	cv::Mat x = cv::Mat(A.size().height, 1, A.type());
+    cv::Mat x = cv::Mat(A.rows, 1, A.type());
 
-	viennacl::matrix<float> gpuMatrix(A.size().height, A.size().width);
-	viennacl::vector<float> gpuVector(A.size().width);
-	viennacl::vector<float> gpuResult(A.size().height);
+    viennacl::matrix<float> gpuMatrix(A.rows, A.cols);
+    viennacl::vector<float> gpuVector(A.cols);
+    viennacl::vector<float> gpuResult(A.rows);
 
 	StdMatrix stdMatrix = CS::math::MathUtils::matToStdMatrix(A);
 	

@@ -635,4 +635,12 @@ void setLoggingParameters(bool verbose) {
 	}
 }
 
+void makeMeasurementNumberDivisibleBy16(int size, double* measurementRatio) {
+	double measurementNumber = std::ceil((double) size * (*measurementRatio));
+	double rem = std::fmod(measurementNumber, 16.0);
+	measurementNumber += 16.0 - rem;
+
+	*measurementRatio = measurementNumber / (double)size;
+}
+
 }} // namespace brackets

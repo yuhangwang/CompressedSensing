@@ -308,6 +308,7 @@ bool SaveImageAsBMP ( unsigned int* ptr, int width, int height, const char* file
 opts::variables_map setAndRunCommandLineArgs(int argc, char **argv, double* measurementRatio, bool* verbose,std::string* cameraName, std::string* algorithmName,std::string* solverType, opts::options_description&);
 void validateInputArguments(int, int, double);
 void setLoggingParameters(bool verbose);
+void makeMeasurementNumberDivisibleBy16(int size, double* measurementRatio);
 
 
 

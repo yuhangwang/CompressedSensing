@@ -16,13 +16,15 @@ void CS::math::MathUtils::randperm(int n, int* perm) {
 }
 
 std::vector<std::vector<float>> CS::math::MathUtils::matToStdMatrix(const cv::Mat& A) {
-	int height = A.size().height;
-	int width = A.size().width;
+    int height = A.rows;
+    int width = A.cols;
 	std::vector<std::vector<float>> stdMatrix(height);
-	LOG_DEBUG("size of mat = ("<<A.size().height<<","<<A.size().width<<")");
-	for(int i = 0; i < height; i++) {
+    for(int i = 0; i < height; i++) {
 		stdMatrix[i].resize(width);
-		std::copy(A.data + width * i, A.data + width * i + height, stdMatrix[i].begin());
+        //tried iterators, got exceptions :(
+        for(int j = 0; j < width; j++) {
+			stdMatrix[i][j] = A.at<float>(i,j);
+		}
 	}
 
 	return stdMatrix;

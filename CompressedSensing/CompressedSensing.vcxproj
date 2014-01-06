@@ -30,6 +30,7 @@
     <ClCompile Include="src\experiment\ExperimentHandler.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ocl\ocl.cpp" />
+    <ClCompile Include="src\solver\CPUSolver.cpp" />
     <ClCompile Include="src\solver\GPUSolver.cpp" />
     <ClCompile Include="src\solver\ISolver.cpp" />
     <ClCompile Include="src\solver\SolverFactory.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="src\exceptions\Exceptions.h" />
     <ClInclude Include="src\experiment\ExperimentHandler.h" />
     <ClInclude Include="src\ocl\ocl.h" />
+    <ClInclude Include="src\solver\CPUSolver.h" />
     <ClInclude Include="src\solver\GPUSolver.h" />
     <ClInclude Include="src\solver\ISolver.h" />
     <ClInclude Include="src\solver\SolverFactory.h" />

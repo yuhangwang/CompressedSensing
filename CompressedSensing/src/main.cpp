@@ -60,6 +60,7 @@ int main(int argc, char **argv) {
 		int imageHeight = vm["image-height"].as<int>();
 
 		utils::validateInputArguments(imageWidth, imageHeight, measurementRatio);
+		utils::makeMeasurementNumberDivisibleBy16(imageHeight * imageWidth, &measurementRatio);//ViennaCL::qr condition
 		std::shared_ptr<ICamera> pCamera(CameraFactory::getInstance(cameraName, imageWidth, imageHeight));
 		std::shared_ptr<ICSAlgorithm> pAlgorithm(AlgorithmFactory::getInstance(algorithmName));
 		std::shared_ptr<ISolver> pSolver(SolverFactory::getInstance(solverType));
