@@ -1,0 +1,9 @@
+\select@language {polish}
+\contentsline {subsection}{\numberline {0.1}Abstrakt}{3}{subsection.0.1}
+\contentsline {subsection}{\numberline {0.2}Wst\IeC {\k e}p}{4}{subsection.0.2}
+\contentsline {subsection}{\numberline {0.3}Analiza z?o?ono?ci i estymacja zapotrzebowania na zasoby}{5}{subsection.0.3}
+\contentsline {subsection}{\numberline {0.4}Koncepcja proponowanego rozwi?zania}{6}{subsection.0.4}
+\contentsline {subsection}{\numberline {0.5}Symulacja i testowanie}{7}{subsection.0.5}
+\contentsline {subsection}{\numberline {0.6}Rezultaty i wnioski}{8}{subsection.0.6}
+\contentsline {subsection}{\numberline {0.7}Podsumowanie}{9}{subsection.0.7}
+\contentsfinish 

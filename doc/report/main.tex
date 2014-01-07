@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage{tocloft}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{subfig}
+\usepackage{graphicx}
+\usepackage{mathpazo}
+\usepackage[T1]{fontenc}
+\usepackage{color}
+\usepackage{epstopdf}
+\usepackage{amsmath, mathtools}
+
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\usepackage[
+        unicode=true,
+        bookmarks=true,
+        bookmarksnumbered=false,
+        bookmarksopen=false,
+        breaklinks=false,
+        pdfborder={0 0 1},
+        backref=false,
+        colorlinks=false]{hyperref}
+		
+\hypersetup
+{
+        pdftitle={Rekonstrukcja obrazu z sygnału rzadkiego},
+        pdfauthor={Karol Olko}
+}
+
+\linespread{1.15}
+\lstloadlanguages{TeX}
+
+\usepackage{titlesec}
+\usepackage{titletoc}
+
+
+\begin{document}
+
+\author{Karol Olko}
+
+\title{\Huge{Rekonstrukcja obrazu z sygnału rzadkiego}}
+\maketitle
+\newpage{}
+\tableofcontents{}
+\newpage{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{abstrakt/abstrakt}
+\newpage{}
+\input{wstep/wstep}
+\newpage{}
+\input{analiza/analiza}
+\newpage{}
+\input{koncepcja/koncepcja}
+\newpage{}
+\input{testowanie/testowanie}
+\newpage{}
+\input{rezultaty/rezultaty}
+\newpage{}
+\input{podsumowanie/podsumowanie}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cleardoublepage
+
+\listoffigures{}
+
+\newpage{}
+
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{bibliografia}
+
+\end{document}
