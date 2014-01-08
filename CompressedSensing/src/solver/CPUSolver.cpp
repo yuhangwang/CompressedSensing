@@ -32,7 +32,7 @@ cv::Mat CPUSolver::product(const cv::Mat& A, const cv::Mat& b) {
 
 cv::Mat CPUSolver::transProduct(const cv::Mat& A, const cv::Mat& b) {
 	cv::Mat At = cv::Mat(A.cols, A.rows, A.type());
-	transpose(A, At);
+	cv::transpose(A, At);
 	return At * b;
 }
 
