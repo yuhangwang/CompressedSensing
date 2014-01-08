@@ -37,7 +37,31 @@ void testFillMatrices(BMatrix& m, BMatrix& Q, BMatrix& R) {
 
 }}
 
-TEST(VIENNA_CL_TEST, QR_FACTORIZATION) {
+TEST(VIENNA_CL_TEST, QR_FACTORIZATION_OVERDETERMINED) {
+	BMatrix m(32,16); //overdetermined system
+	BMatrix Q(32,32);
+	BMatrix R(32,16);
+
+	viennacl::matrix<float> vclM(m.size1(), m.size2());
+
+	CS::test::testFillMatrices(m, Q, R);
+	BMatrix mCopy(m);
+
+	viennacl::copy(m, vclM);
+	std::vector<float> betas = viennacl::linalg::inplace_qr(vclM);
+
+	//copy back to CPU
+	viennacl::copy(vclM, m);
+
+	viennacl::linalg::recoverQ(m, betas, Q, R);
+
+	BMatrix QR_product = boost::numeric::ublas::prod(Q, R);
+
+	double maxError = CS::test::TestUtils::maxRelativeError(QR_product, mCopy);
+	EXPECT_LT(maxError, 0.01);
+}
+
+TEST(VIENNA_CL_TEST, QR_FACTORIZATION_UNDERDETERMINED) {
 	BMatrix m(16,32); //underdetermined system
 	BMatrix Q(16,16);
 	BMatrix R(16,32);

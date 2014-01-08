@@ -1,4 +1,5 @@
 #define __CL_ENABLE_EXCEPTIONS
+#define OPENCV_VERSION 244
 
 #include <thread>
 #include <memory>

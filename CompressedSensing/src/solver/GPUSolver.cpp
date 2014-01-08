@@ -129,8 +129,8 @@ cv::Mat GPUSolver::QRMinEnergySolve(const cv::Mat& A, const cv::Mat& y) {
 	
     ublas::matrix<float> boostA = MathUtils::matToBoostMatrix(A);
 
-    ublas::matrix<float> Q(A.cols, A.rows); //32x16
-    ublas::matrix<float> R(A.rows, A.rows); //16x16
+    ublas::matrix<float> Q(A.cols, A.cols); //32x32,
+    ublas::matrix<float> R(A.cols, A.rows); //32x16
 
     VCLMatrix vcl_A(boostA.size1(), boostA.size2());
 	VCLMatrix vcl_At(boostA.size2(), boostA.size1());
@@ -144,11 +144,12 @@ cv::Mat GPUSolver::QRMinEnergySolve(const cv::Mat& A, const cv::Mat& y) {
 
     std::vector<float> betas = viennacl::linalg::inplace_qr(vcl_At);
 
+	ublas::matrix<float> boostAt(boostA.size2(), boostA.size1());
     //copy back to CPU
-    viennacl::copy(vcl_At, boostA);
+    viennacl::copy(vcl_At, boostAt);
 
 	std::copy(y.begin<float>(), y.end<float>(), ublas_y.begin());
-    viennacl::linalg::recoverQ(boostA, betas, Q, R);
+    viennacl::linalg::recoverQ(boostAt, betas, Q, R);
 
 	//check ublas_y size carefully
 	ublas::inplace_solve(trans(R), ublas_y, ublas::upper_tag());
