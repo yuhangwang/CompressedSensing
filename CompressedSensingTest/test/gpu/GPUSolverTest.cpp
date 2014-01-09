@@ -68,11 +68,12 @@ TEST_F(GPUSolverTest, MinEnergyLinSolveTest) {
     cv::Mat y(16,1, CV_32FC1);
     TestUtils::fillSquares(y);
 
-    //std::cout << "A = " <<A << "y = "<<y;
     cv::Mat x = solver->linsolve(A, y);
 
     EXPECT_EQ(x.rows, 32);
     EXPECT_EQ(x.cols, 1);
+
+	EXPECT_LE(cv::norm(x, cv::NORM_L2), 4.5); //3.93 is the matlab computed optimal solution norm :(
 }
 
 

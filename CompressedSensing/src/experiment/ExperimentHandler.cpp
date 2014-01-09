@@ -38,13 +38,14 @@ void ExperimentHandler::handleExperiment() {
 //private methods
 
 void ExperimentHandler::debugImageShow(const cv::Mat& image) {
-	cv::Mat imShow = image.clone();
-	LOG_DEBUG("image size = ("<<image.size().height<<","<<image.size().width<<")");
-	cv::resize(imShow, imShow, cv::Size(parameters.imageHeight, parameters.imageWidth), 0, 0, cv::INTER_CUBIC);
-	LOG_DEBUG("resized image size = ("<<imShow.size().height<<","<<imShow.size().width<<")");
-	cv::namedWindow("starting solution", cv::WINDOW_AUTOSIZE);
-	cv::imshow("starting solution", imShow);
-	LOG_WARNING("Close window to continue execution!");
+	cv::Mat draw;
+	double maxValue, minValue;
+	cv::minMaxLoc(image, &minValue, &maxValue);
+	image.convertTo(draw, CV_8U, 255.0/(maxValue - minValue), -minValue *255.0/(maxValue - minValue));
+	cv::namedWindow("debug-window", CV_WINDOW_AUTOSIZE);
+	cv::imshow("debug-window", draw);
+
+	LOG_DEBUG("Close window to continue program operation");
 	cv::waitKey();
 }
 

@@ -4,4 +4,12 @@
 Strona internetowa projektu single pixel camera.
 \newblock \url{http://dsp.rice.edu/cscamera}, 2014.
 
+\bibitem{JPEG2000}
+JPEG Comittee.
+
+\bibitem{IntroductionCS}
+M.~Davenport i~inni.
+\newblock {\em Introduction to Compressed Sensing in Compressed Sensing: Theory
+  and Applications}.
+
 \end{thebibliography}

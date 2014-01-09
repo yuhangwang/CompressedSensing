@@ -1,5 +1,11 @@
 This is BibTeX, Version 0.99dThe top-level auxiliary file: main.aux
 The style file: plain.bst
 Database file #1: bibliografia.bib
+"{" immediately follows a field part---line 16 of file bibliografia.bib
+ :   howpublished= \url
+ :                     {"http://www.jpeg.org/.demo/FAQJpeg2k/coding-and-compression.htm"}
+I'm skipping whatever remains of this entry
 Warning--to sort, need author or key in SinglePixelCamera
-(There was 1 warning)
+Warning--empty publisher in IntroductionCS
+Warning--empty year in IntroductionCS
+(There was 1 error message)

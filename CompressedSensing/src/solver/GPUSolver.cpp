@@ -134,7 +134,9 @@ cv::Mat GPUSolver::QRMinEnergySolve(const cv::Mat& A, const cv::Mat& y) {
 
     VCLMatrix vcl_A(boostA.size1(), boostA.size2());
 	VCLMatrix vcl_At(boostA.size2(), boostA.size1());
+
 	ublas::vector<float> ublas_y(y.rows);
+	std::copy(y.begin<float>(), y.end<float>(), ublas_y.begin());
 
     //copy data to GPU
     viennacl::copy(boostA, vcl_A);
@@ -148,13 +150,18 @@ cv::Mat GPUSolver::QRMinEnergySolve(const cv::Mat& A, const cv::Mat& y) {
     //copy back to CPU
     viennacl::copy(vcl_At, boostAt);
 
-	std::copy(y.begin<float>(), y.end<float>(), ublas_y.begin());
+	
     viennacl::linalg::recoverQ(boostAt, betas, Q, R);
 
-	//check ublas_y size carefully
-	ublas::inplace_solve(trans(R), ublas_y, ublas::upper_tag());
+	//cut Q,R to minimum size
+	ublas::range r1(0, A.rows);
+	ublas::range Qfull(0, A.cols);
+	ublas::matrix_range<ublas::matrix<float>> essential_R(R, r1,r1);
+	ublas::matrix_range<ublas::matrix<float>> essential_Q(Q, Qfull, r1);
 
-	ublas_y = ublas::prod(Q, ublas_y);
+	ublas::inplace_solve(trans(essential_R), ublas_y, ublas::upper_tag());
+
+	ublas_y = ublas::prod(essential_Q, ublas_y);
 	std::copy(ublas_y.begin(), ublas_y.end(), x.begin<float>());
 
 	return x;
