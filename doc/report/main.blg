@@ -1,11 +1,42 @@
 This is BibTeX, Version 0.99dThe top-level auxiliary file: main.aux
 The style file: plain.bst
 Database file #1: bibliografia.bib
-"{" immediately follows a field part---line 16 of file bibliografia.bib
+"{" immediately follows a field part---line 81 of file bibliografia.bib
  :   howpublished= \url
  :                     {"http://www.jpeg.org/.demo/FAQJpeg2k/coding-and-compression.htm"}
 I'm skipping whatever remains of this entry
+"{" immediately follows a field part---line 105 of file bibliografia.bib
+ :   howpublished= \url
+ :                     {"http://www.curvelet.org/"}
+I'm skipping whatever remains of this entry
+Warning--entry type for "Davenport2010" isn't style-file defined
+--line 148 of file bibliografia.bib
 Warning--to sort, need author or key in SinglePixelCamera
+Warning--to sort, need author or key in SinglePixelCameraCode
+Too many commas in name 1 of "Emmanuel Candes, Laurent Demanet, David Donoho, Lexing Ying" for entry CurveletWebSite
+while executing---line 1049 of file plain.bst
+Too many commas in name 1 of "Gwon, Youngjune, H.T. Kung, Dario Vlah" for entry Gwon2012
+while executing---line 1049 of file plain.bst
+Too many commas in name 1 of "Richard G. Baraniuk, Volkan Cevher, Marco F. Duarte, Chinmay Hedge" for entry Baraniuk2010
+while executing---line 1049 of file plain.bst
+Warning--empty journal in Eldar2009
+Too many commas in name 1 of "Emmanuel Candes, Laurent Demanet, David Donoho, Lexing Ying" for entry CurveletWebSite
+while executing---line 1090 of file plain.bst
+Warning--empty journal in Candes2006
+Too many commas in name 1 of "Gwon, Youngjune, H.T. Kung, Dario Vlah" for entry Gwon2012
+while executing---line 1090 of file plain.bst
 Warning--empty publisher in IntroductionCS
 Warning--empty year in IntroductionCS
-(There was 1 error message)
+Warning--empty journal in Fountoulakis2012
+Warning--empty journal in Peyre2010
+Warning--empty year in Peyre2010
+Too many commas in name 1 of "Richard G. Baraniuk, Volkan Cevher, Marco F. Duarte, Chinmay Hedge" for entry Baraniuk2010
+while executing---line 1090 of file plain.bst
+Warning--empty journal in Baraniuk2010
+Warning--empty year in Baraniuk2010
+Warning--empty journal in Rudelson2008
+Warning--empty publisher in Boyd2004
+Warning--empty year in Boyd2004
+Warning--empty journal in Zhang2013
+Warning--empty year in Zhang2013
+(There were 8 error messages)

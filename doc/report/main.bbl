@@ -1,15 +1,127 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{SinglePixelCameraCode}
+Kod źródłowy l1-magic.
+\newblock \url{http://dsp.rice.edu/files/cs/cscameradata.zip}, 2014.
 
 \bibitem{SinglePixelCamera}
 Strona internetowa projektu single pixel camera.
 \newblock \url{http://dsp.rice.edu/cscamera}, 2014.
 
+\bibitem{Berinde2008}
+Radu Berinde and Piotr Indyk.
+\newblock Sparse recovery using sparse random matrices, 2008.
+
+\bibitem{Candes2000}
+Emmanuel~J. Candès and David~L. Donoho.
+\newblock Curvelets: a surprisingly effective nonadaptive representation of
+  objects with edges.
+\newblock In {\em IN CURVE AND SURFACE FITTING: SAINT-MALO}. University Press,
+  2000.
+
+\bibitem{Cevher2009}
+Volkan Cevher, Piotr Indyk, Lawrence Carin, and Richard~G. Baraniuk.
+\newblock A tutorial on sparse signal acquisition and recovery with graphical
+  models, 2009.
+
 \bibitem{JPEG2000}
 JPEG Comittee.
+
+\bibitem{Davenport2010}
+Mark~A. Davenport.
+\newblock Random observations on random observations: Sparse signal acquisition
+  and processing.
+
+\bibitem{CandesIntro}
+M.Wakin E.~Candes.
+\newblock An introduction to compressive sampling.
+\newblock {\em IEEE Signal Processing Magazine}, 2008.
+
+\bibitem{Eldar2009}
+Yonina~C. Eldar.
+\newblock Compressed sensing of analog signals in shift-invariant spaces.
+\newblock 2009.
+
+\bibitem{CurveletWebSite}
+David Donoho Lexing~Ying Emmanuel~Candes, Laurent~Demanet.
+
+\bibitem{Candes2006}
+Justin~Romberg Emmanuel~Candes.
+\newblock Sparsity and incoherence in compressive sampling.
+\newblock 2006.
+
+\bibitem{L1MagicNotes}
+Justin~Romberg Emmanuel~Candes.
+\newblock l1-magic: Recovery of sparse signals via convex programming.
+\newblock
+  \url{http://users.ece.gatech.edu/~justin/l1magic/downloads/l1magic.pdf},
+  2014.
+
+\bibitem{Candes2005b}
+Terence~Tao Emmanuel~Candes, Justin~Romberg.
+\newblock Robust uncertainty principles: Exact signal reconstruction from
+  highly incomplete frequency information, 2005.
+
+\bibitem{Candes2005a}
+Terence~Tao Emmanuel~Candes, Justin~Romberg.
+\newblock Stable signal recovery from incomplete and inaccurate measurements,
+  2005.
+
+\bibitem{Gwon2012}
+H.T. Kung Dario~Vlah Gwon, Youngjune.
+\newblock Compressive sensing with optimal sparsifying basis and applications
+  in spectrum sensing.
+\newblock {\em IEEE Globecom conference report}, 2012.
 
 \bibitem{IntroductionCS}
 M.~Davenport i~inni.
 \newblock {\em Introduction to Compressed Sensing in Compressed Sensing: Theory
   and Applications}.
+
+\bibitem{PR12SIS306}
+P.~Wiśniewski I.~Kułakowska.
+\newblock Próbkowanie sygnałów rzadkich - model.
+
+\bibitem{GAGA}
+Jared~Tanner Jeffrey~Blanchard.
+\newblock Gpu accelerated greedy algorithms.
+\newblock \url{http://www.gaga4cs.org/}, 2014.
+
+\bibitem{Fountoulakis2012}
+Pavel~Zhlobich Kimon~Foutoulakis, Jacek~Gondzio.
+\newblock Matrix-free interior point method for compressed sensing problems.
+\newblock 2012.
+
+\bibitem{Peyre2010}
+Gabriel Peyre.
+\newblock Best basis compressed sensing.
+
+\bibitem{Baraniuk2010}
+Marco F. Duarte Chinmay~Hedge Richard G.~Baraniuk, Volkan~Cevher.
+\newblock Model-based compressive sensing.
+
+\bibitem{Rudelson2008}
+M.~Rudelson and R.~Vershynin.
+\newblock On sparse reconstruction from fourier and gaussian measurements.
+\newblock 2008.
+
+\bibitem{Boyd2004}
+L.~Vanderberghe S.~Boyd.
+\newblock {\em Convex Optimization}.
+
+\bibitem{MAGMA}
+Zespół Innovative Computing Laboratory~Uniwersytetu Tennessee.
+\newblock Matrix algebra on gpu and multicore architectures.
+\newblock \url{http://icl.utk.edu/magma/}, 2014.
+
+\bibitem{Blumensath2009}
+Mike E.~Davis Thomas~Blumensath.
+\newblock Iterative hard thresholding for compressed sensing.
+\newblock {\em Applied and Computational Harmonic Analysis}, 2009.
+
+\bibitem{Zhang2013}
+Yin Zhang.
+\newblock Theory of compressive sensing via l1 minimization: a non-rip analysis
+  and extensions.
 
 \end{thebibliography}
