@@ -2,7 +2,6 @@
 \subsection{Wprowadzenie}
 Kierunek badań odtwarzania sygnału rzadkiego (ang. \textbf{CS} – \textit{Compressed Sensing}) jest stosunkowo nową i bardzo ciekawym kierunkiem badań w~dziedzinie przetwarzania sygnałów cyfrowych (ang. \textbf{DSP} – \textit{Digital Signal Processing}). W~klasycznym podejściu, aby dokładnie odtworzyć sygnał ciągły, próbkuje się go przynajmniej z~częstotliwością Nyquista. Dla sygnałów szybkozmiennych jest to jednak bardzo kosztowne, gdyż wymaga to znacznego skomplikowania czujników (wyposażając je w~mechanizm kompresji danych) lub wymusza wykorzystanie kanału transmisyjnego o~dużej przepustowości. Często również wykonanie samego pomiaru jest drogie i~powolne (jak w~przypadku rezonansu magnetycznego) lub niebezpieczne (promienie rentgenowskie). Wyniki badań z~dziedziny próbkowania rzadkiego dowodzą jednak, że często udaje się dokładnie odtworzyć sygnał ze znacznie mniejszej liczby pomiarów, wykorzystując jego nadmiarowość i~rzadką reprezentację w~odpowiednio dobranej przestrzeni \cite{IntroductionCS}. Ta sama idea wykorzystywana jest w~algorytmach kompresji danych: rzadka reprezentacja zdjęcia w~bazie falkowej jest metodą zmniejszenia wielkości obrazu w~standardzie JPEG2000 \cite{JPEG2000}. Algorytmy CS są zasadniczo różne - próbują one znaleźć taki sposób pomiaru, który pobiera konieczne informacje o~sygnale już w~skompresowanej formie. Proces odtwarzania sygnału możemy więc podzielić na dwie podstawowe czynności - rzadkie próbkowanie i~rekonstrukcję. Drugi krok jest nietrywialny i~kosztowny pod względem obliczeniowym. Zazwyczaj zadanie rekonstrukcji sygnału sprowadza się do liniowego lub kwadratowego problemu optymalizacji, w~którym najwięcej czasu zajmuje obliczenie kroku Newtona \cite{L1MagicNotes}.
 
-Poniższy raport składa się z~sześciu rozdziałów. Po wstępie, opisującym kontekst pracy i~wykonane badania literaturowe, następuje rozdział poświęcony złożoności czasowej i~pamięciowej postawionego problemu. Rozdział trzeci przedstawia koncepcję jego rozwiązania, a~czwarty - procedury testowe. Rozdziały 5 i~6 opisują odpowiednio wyniki przeprowadzonych eksperymentów oraz podsumowanie. Szczegółowy opis zadania znajduje się w~załączniku.
 \subsection{Cele i~założenia projektu}
 Głównym celem projektu była implementacja wybranego algorytmu odtwarzania sygnału rzadkiego, wykorzystując do obliczeń kartę graficzną. Zadaniem dodatkowym była symulacja jednopikselowej kamery, wykorzystując kamerę firmy Jai, dostępną w~sali laboratoryjnej. Projekt miał umożliwić znaczne przyspieszenie istniejących rozwiązań, opartych głównie o~skrypty środowiska Matlab/Simulink, a~także umożliwić odtwarzanie obrazów o~większej skali (docelowo obraz w~pełnej rozdzielczości kamery, czyli 2560 x 2048 pikseli). Z~uwagi na przyjęty sposób uzyskiwania pomiarów oraz przede wszystkim - ograniczenia pamięciowe, okazało się to kompletnie nierealne. Projekt zrealizowano w~znacznie mniejszej skali, dając jednak możliwość na jego dalszą rozbudowę (co, według naszej wiedzy, byłoby możliwe przy innym sformułowaniu problemu).
 
@@ -74,7 +73,7 @@ Gdzie $I_\Gamma$ oznacza identycznościową podmacierz $M x N$, uzyskaną przez 
 Ostatecznie, naszym wyborem stała się rzadka macierz pomiarowa, opisana w \cite{Berinde2008}. Cechuje ją niezwykła prostota. W każdej kolumnie macierzy $A$ wybieramy $d$ jedynek. Dbamy przy tym, by żadne dwa wektory kolumnowe nie były identyczne (co przy $d \ll N$ jest praktycznie niemożliwe). Zaletą tego rozwiązania jest udowodniona odporność na szum, efektywne mnożenie macierzy (wymaga ono nie więcej niż $nd$ dodawań) i niewielka ilość zajmowanego miejsca w pamięci. Przedstawione wyniki empiryczne dla zdjęć o rozmiarze 256x256 potwierdziły, że wykorzystując tę macierz pomiarową, można rozwiązywać problemy w odpowiednio dużej skali. Po decyzji związanej z macierzą pomiarową, przystąpiono do wyboru algorytmu rekonstrukcji zdjęcia.
 
 \subsubsection{Dobór algorytmu rekonstrukcyjnego}
-Odpowiedni dobór algorytmu odtworzenia sygnału ma niebagatelne znaczenie na szybkość, stabilność i dokładność procesu. Wyzwaniem stało się odpowiednie dobranie metody dla implementacji na karcie graficznej. Temat ten jest bowiem rzadko podejmowany w publikacjach naukowych. Natrafiono jedynie na jedną bibliotekę implementującą algorytmy odtwarzania sygnału z użyciem kart graficznych \cite{GAGA}. Grupa metod tam wykorzystanych nosi miano zachłannych. Przykładowo, algorytm iteracyjnego progowania (ang. \textbf{IHT} -- \textit{Iterative hard thresholding}) \cite{Blumensath2009} opisany jest następującą, iteracyjną formułą: 
+Odpowiedni dobór algorytmu odtworzenia sygnału ma niebagatelne znaczenie na szybkość, stabilność i dokładność procesu. Wyzwaniem stało się odpowiednie dobranie metody dla implementacji na karcie graficznej. Temat ten jest bowiem rzadko podejmowany w publikacjach naukowych. Natrafiono jedynie na jedną bibliotekę implementującą algorytmy odtwarzania sygnału z użyciem kart graficznych \cite{GAGA}, zbudowaną na bazie biblioteki CUDA \cite{CUDA}. Grupa metod optymalizacji tam wykorzystanych nosi miano zachłannych. Natrafiono na doskonałe przeglądy metod z tego obszaru w \cite{Needell2009,Gronde2008}. Przykładowo, przedstawiony tam algorytm iteracyjnego progowania (ang. \textbf{IHT} -- \textit{Iterative hard thresholding}) \cite{Blumensath2009} opisany jest następującą, iteracyjną formułą: 
 \begin{equation}
 \begin{split}
     x_0 & = 0 \\ 
@@ -86,14 +85,29 @@ Gdzie $H_s(a)$ zeruje wszystkie poza $s$ największymi współczynniki $x$. Algo
 
 Ponownie, punktem wyjścia w naszych rozważaniach były algorytmy zaimplementowane w pakiecie $\ell 1$-MAGIC \cite{SinglePixelCameraCode}. Grupa metod programowania liniowego minimalizujących normę $\ell 1$ okazały się jednak skutecznie głównie dla sygnałów prawdziwie rzadkich. Odtworzenie zdjęcia algorytmem $\ell 1$-pd \cite{Boyd2004} w aplikacji współtworzonej przez jednego autorów projektu \cite{PR12SIS306} było skuteczne, gdy $\frac{m}{n} \ge  0.6$. Chcąc znacząco poprawić ten wynik, należało poszukać innej metody rozwiązania. Pamiętając również o akceleracji obliczeń przy pomocy karty graficznej, przyglądnięto się klasie algorytmów zwykle implementowanych na tych urządzeniach. 
 
-Za niezwykle interesujący uznano algorytm \textbf{TVQC} \cite{Candes2005a,Candes2005b}. Rozwiązuje on następujący problem optymalizacyjny:
+Za niezwykle interesujący uznano algorytm \textbf{TVQC} \cite{Candes2005a,Candes2005b}. Traktując $x_{ij}$ jako piksel znajdujący się w $i$-tym rzędzie oraz $j$-tej kolumnie zdjęcia $x$ o wymiarach $n \times n$, oraz po zdefiniowaniu operatorów:
+\begin{equation}
+	D_{h;i,j}x = \begin{cases}
+					x_{i+1,j} - x_{i,j} &, i < n \\
+					0 &, i = n 
+				 \end{cases} 
+				 \qquad
+	D_{v;i,j}x = \begin{cases}
+					x_{i,j+1} - x_{i,j} &, j < n \\
+					0 &, j = n
+				 \end{cases}			 
+\end{equation}
+Algorytm ten można opisać jako rozwiązanie następującego problemu optymalizacyjnego:
 \begin{equation}
 \begin{split}
 & \min_{TV} ~~\text{spełniający}~~\|Ax - y \|_{\ell 2} \le \epsilon \\
 \text{gdzie:} &\\
-              & \|x \|_{TV} = \sum_{i,j} \sqrt{ \left( x_{i+1,j} - x_{i,j} \right)^2 + \left( x_{i,j+1} - x_{i,j} \right) ^2} = \sum_{i,j}|\left(\nabla x \right)_{i,j} |
+              & \|x \|_{TV} = \sum_{i,j} \sqrt{ \left( D_{h;i,j} \right)^2 + \left( D_{v;i,j} \right) ^2} = \sum_{i,j}|\left(D_{i,j}\right) |
 \label{eq:TV}
 \end{split}
 \end{equation}
 
-Podstawowym założeniem tej metody jest rzadkość (lub kompresowalność) \textit{gradientu} zdjęcia. Jest ono słuszne dla dużej części naturalnych ekspozycji i tylko nieznacznie zmniejsza uniwersalność metody. Baza gradientu sygnału wydaje się być wysoce niekoherentna z rzadką macierzą pomiarową. Dokonano bowiem udanych rekonstrukcji zdjęć przy użyciu ok. 8\% pomiarów \cite{Berinde2008}. Jedyną zagadką pozostała ocena wydajności algorytmu zaimplementowanego na karcie graficznej. Nie odnaleziono bowiem żadnych prób równoległej implementacji algorytmu. Postanowiono jednak podjąć próbę i wyciągnąć odpowiednie wnioski z przeprowadzonych testów.
+Podstawowym założeniem tej metody jest rzadkość (lub kompresowalność) \textit{gradientu} zdjęcia. Jest ono słuszne dla dużej części naturalnych ekspozycji i tylko nieznacznie zmniejsza uniwersalność metody. Baza gradientu sygnału wydaje się być wysoce niekoherentna z rzadką macierzą pomiarową. Dokonano bowiem udanych rekonstrukcji zdjęć przy użyciu ok. 8\% pomiarów \cite{Berinde2008}. Jedyną zagadką pozostała ocena wydajności algorytmu zaimplementowanego na karcie graficznej. Nie odnaleziono bowiem żadnych prób równoległej implementacji algorytmu. Ustalono jednak\cite{Tarsa2012, Bolz2003}, że możliwe jest wyraźne przyspieszenie najbardziej kosztownego etapu algorytmu - obliczenie kroku Newtona przy pomocy iteracyjnej metody gradientu sprzężonego. Po długich rozważaniach przyjęto w końcu sposób realizacji algorytmu i przystąpiono do oceny jego złożoności obliczeniowej oraz możliwości stanowiska laboratoryjnego. Miało to bezpośrednie przełożenie na skalę rozwiązywanych później problemów.
+
+\subsection{Omówienie zawartości pracy}
+Poniższy raport składa się z~sześciu rozdziałów. Po wstępie, w którym opisano kontekst pracy i~wykonane badania literaturowe, następuje rozdział poświęcony złożoności czasowej i~pamięciowej postawionego problemu. Rozdział trzeci przedstawia koncepcję jego rozwiązania, a~czwarty - procedury testowe. Rozdziały 5 i~6 opisują odpowiednio wyniki przeprowadzonych eksperymentów oraz podsumowanie. Szczegółowy opis zadania znajduje się w~załączniku.

@@ -12,6 +12,13 @@
 \usepackage{color}
 \usepackage{epstopdf}
 \usepackage{amsmath, mathtools}
+\usepackage{tabularx}
+\usepackage[toc,page]{appendix}
+
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
 \usepackage{booktabs}
 \usepackage{amsfonts}
@@ -22,6 +29,25 @@
 
 \newcommand{\code}[1]{\texttt{#1}}
 \DeclareMathOperator*{\argmin}{arg\,min}
+
+\newcommand{\bpm}{\left(\begin{matrix}}
+\newcommand{\epm}{\end{matrix}\right)}
+\newcommand{\grad}{\nabla}
+\newcommand{\dx}{\Delta x}
+\newcommand{\du}{\Delta u}
+\newcommand{\dt}{\Delta t}
+\newcommand{\dv}{\Delta v}
+\newcommand{\dz}{\Delta z}
+\newcommand{\dlam}{\Delta\lambda}
+\newcommand{\dnu}{\Delta\nu}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\<}{\langle}
+\renewcommand{\>}{\rangle}
+
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\vzero}{\mathbf{0}}
+\newcommand{\vone}{\mathbf{1}}
 
 \usepackage[
         unicode=true,
@@ -78,5 +104,12 @@
 \nocite{*}
 \bibliographystyle{plain}
 \bibliography{bibliografia}
+
+\begin{appendices}
+\input{dodatek/opis_zadania}
+\input{dodatek/dokumentacja_techniczna}
+\input{dodatek/spis_zawartosci}
+\input{dodatek/historia_zmian}
+\end{appendices}
 
 \end{document}

@@ -1,0 +1,143 @@
+\section{Szczegółowy opis zadania}
+\subsection{Specyfikacja projektu}
+Celem projektu było zaproponowanie realistycznego modelu jednopikselowej kamery oraz przygotowanie co najmniej jednej metody odtwarzania rzadko spróbkowanego sygnału. Zadanie to wydaje się mieć wiele potencjalnych zastosowań, szczególnie w dziedzinie medycyny lub telekomunikacji. Oczekiwanym celem projektu jest maksymalne przyspieszenie działania algorytmu, poprzez wykorzystanie zasobów karty graficznej. 
+\subsection{Szczegółowy opis algorytmu odtwarzania obrazu TVQC}
+Algorytm TVQC został dokładnie zdefiniowany w dokumentacji pakietu $\ell_1$-MAGIC ~\cite{L1MagicNotes}. Metoda optymalizacji wykorzystana do odtworzenia zdjęcia została z kolei opisana w \cite{Boyd2004}. Poza przepisem matematycznym, przedstawiono również funkcjonowanie algorytmu na schemacie blokowym.
+\subsubsection{Zdefiniowanie problemu}
+Algorytm TVQC należy do grupy kwadratowych problemów optymalizacji (ang. \textbf{SOCP} - \textit{Second-order Cone Programming}). Przepiszmy więc problem ~\ref{eq:TV} do ich generycznej postaci:
+
+\begin{equation}
+\begin{split}
+\min_{x,t} \sum_{ij} t_{i,j} \text{~~spełniający~~} &\|D_{ij}x \|_2 < t_{ij}, i,j = 1,...,n \\
+&\|Ax - b \|_2 \le \epsilon.
+\end{split}
+\label{eq:SOCP-generic}
+\end{equation}
+Przyjmując
+\begin{equation}
+\label{eq:ftij}
+f_{t_{ij}} = \frac{1}{2}\left(\|D_{ij}\|_2^2 - t^2_{ij}\right)\quad i,j=1,\ldots,n
+\end{equation}
+oraz
+\[
+f_\epsilon = \frac{1}{2}\left( \|Ax-b\|^2_2 - \epsilon^2\right),
+\].
+Mając
+\[
+\grad f_\epsilon = \bpm A^Tr \\ \vzero \epm,\quad 
+\grad f_\epsilon \grad f_\epsilon^T =
+\bpm  A^Trr^TA & \vzero \\ \vzero & \vzero \epm, \quad
+\grad^2 f_\epsilon = \bpm A^*A & \vzero \\
+\vzero & \vzero \epm
+\]
+gdzie $r = Ax - b$.
+Także, 
+\[
+\grad^2 f_{t_{ij}} = \left(\begin{array}{cc} D_{ij}^*D_{ij} & \vzero \\
+\vzero & -\delta_{ij}\delta_{ij}^T \end{array}\right)
+\quad
+\grad^2 f_\epsilon = \left(\begin{array}{cc} A^*A & \vzero \\
+\vzero & \vzero \end{array}\right).
+\]
+
+Rozważana forma kwadratowa przedstawia się następująco:
+\[ 
+\bpm H_{11} & B\Sigma_{12} \\
+\Sigma_{12}B^T & \Sigma_{22} \epm
+\bpm \dx \\ \dt \epm =
+\bpm D_h^T F_t^{-1}D_h x + D_v^TF_t^{-1}D_v x + f_\epsilon^{-1}A^Tr \\
+-\tau\mathbf{1} - tf^{-1}_t \epm :=
+\bpm w_1 \\ w_2 \epm.
+\]
+gdzie $(tf^{-1}_t)_{ij} = t_{ij}/f_{t_{ij}}$, oraz 
+\begin{align*}
+H_{11} = ~& D_h^T(-F_t^{-1})D_h ~+~ D_v^T(-F_t^{-1})D_v ~+~ B F_t^{-2}B^T ~- \\
+ & f_\epsilon^{-1} A^TA ~+~ f_\epsilon^{-2} A^Trr^TA, \\
+\Sigma_{12} = ~& -TF_t^{-2}, \\
+\Sigma_{22} = ~& F_t^{-1} + F_t^{-2}T^2,
+\end{align*}
+Rugując $\dt$
+\[
+\dt = \Sigma_{22}^{-1}(w_2 - \Sigma_{12}\Sigma_{\partial h}D_h\dx - \Sigma_{12}\Sigma_{\partial v}D_v\dx),
+\]
+kluczową do rozwiązania formą kwadratową jest
+\[
+H'_{11}\dx  = 
+w_1 - (D_h^T\Sigma_{\partial h} + D_v^T\Sigma_{\partial v} )\Sigma_{12}\Sigma_{22}^{-1}w_2
+\]
+gdzie
+\begin{align*}
+H'_{11} = ~& H_{11} - B\Sigma^2_{12}\Sigma_{22}^{-1}B^T \\
+= ~& D_h^T(\Sigma_b\Sigma^2_{\partial h}-F_t^{-1})D_h ~+~
+D_v^T(\Sigma_b\Sigma^2_{\partial v}-F_t^{-1})D_v ~+~\\
+~& D_h^T(\Sigma_b\Sigma_{\partial h}\Sigma_{\partial v})D_v ~+~
+D_v^T(\Sigma_b\Sigma_{\partial h}\Sigma_{\partial v})D_h ~-~ \\
+~& f_\epsilon^{-1} A^TA ~+~ f_\epsilon^{-2} A^Trr^TA, \\
+\Sigma_b = ~& F_t^{-2} - \Sigma_{12}^2\Sigma_{22}^{-1}.
+\end{align*}
+
+Powyższy układ równań jest dodatnio określony, co pozwala rozwiązać go metodą gradientu sprzężonego.
+
+W celu rozwiązania powyższego problemu użyto metody \textit{log-barrier} \cite{Boyd2004}. Przekształca ona \textit{SOCP} w szereg problemów z ograniczeniami liniowymi:
+\begin{equation}
+\label{eq:logbarrier} 
+\min_z ~ \<c_0,z\> + \frac{1}{\tau^k} \sum_{i}
+-\log(-f_i(z)) \quad\text{spełniający}\quad A_0 z=b,
+\end{equation}
+gdzie $\tau^k > \tau^{k-1}$. Ograniczenia nierównościowe zostały włączone do funkcjonału w postaci \textit{funkcji kary} \footnote{Wybór $-\log(-x)$ dla funkcji bariery nie jest przypadkowy, gdyż posiada własność (samozgodność), która jest bardzo ważna w szybkiej zbieżności \eqref{eq:logbarrier} do \eqref{eq:SOCP-generic} zarówno w teorii, jak i praktyce.}, która jest nieskończona gdy ograniczenie jest przekroczone i gładka na pozostałym obszarze. Gdy $\tau^k$ rośnie, rozwiązanie $z^k$ problemu \eqref{eq:logbarrier} zmierza do rozwiązania $z^\star$  \eqref{eq:SOCP-generic}: 
+Można wykazać, że $\<c_0,z^k\> - \<c_0,z^\star\> < m/\tau^k$, tzn. znajdujemy się o mniej niż $m/\tau^k$ od optymalnej wartości w $k$-tej iteracji ($m/\tau^k$ jest zwany {\em odstęp dualności}).
+Ideą powyższej metody jest to, że każdy z gładkich podproblemów może być rozwiązany z dużą dokładnością przy jedynie kilku iteracjach metody Newtona, szczególnie, że możemy wykorzystać rozwiązanie $z^k$ jako punkt startowy podproblemu $k+1$.
+
+W $k$-tej iteracji metody \textit{log-barrier}, metoda Newtona tworzy szereg kwadratowych aproksymacji równania \eqref{eq:logbarrier} i minimalizuje je rozwiązując układ liniowy. Aproksymacja kwadratowa funkcjonału
+\[
+f_0(z) = \<c_0,z\> + \frac{1}{\tau}\sum_i -\log(-f_i(z))
+\]
+w \eqref{eq:logbarrier} wokół punktu $z$ jest dana jako:
+\[
+f_0(z+\dz) ~\approx~ z + \<g_z,\dz\> + \frac{1}{2}\<H_z \dz,\dz\> ~:=~ q(z+\dz),
+\]
+gdzie $g_z$ jest gradientem
+\[
+g_z = c_0 + \frac{1}{\tau}\sum_i \frac{1}{-f_i(z)}\grad f_i(z)
+\]
+a $H_z$ jest macierzą Hessego
+\[
+H_z ~=~ \frac{1}{\tau}\sum_i \frac{1}{f_i(z)^2} \grad f_i(z) (\grad f_i(z))^T ~+ ~
+\frac{1}{\tau}\sum_i \frac{1}{-f_i(z)}\grad^2 f_i(z).
+\]
+Przyjmując, że $z$ jest rozwiązaniem dopuszczalnym (tzn. $A_0 z=b$),  $\dz$ które minimalizuje $q(z+\dz)$ spełniające $A_0 z=b$ jest rozwiązaniem układu równań liniowych:
+\begin{equation}
+\label{eq:lbnewton}
+\tau \bpm H_z & A_0^T \\ A_0 & \vzero \epm \bpm \dz \\ v \epm= -\tau g_z.
+\end{equation}
+(Wektor $v$, który może być interpretowany jako mnożniki Lagrange'a ograniczeń jakościowych w kwadratowym problemie optymalizacji, nie jest bezpośrednio wykorzystywany.)
+
+Ponieważ w postawionym wyżej nie problemie nie występują ograniczenia równościowe, zachodzi $A_0=\vzero$. 
+
+Mając $\dz$, znamy kierunek kroku metody Newtona. Długość kroku $s\leq 1$ jest tak wybrana, by
+\begin{enumerate}
+%
+\item $f_i(z+s\dz) < 0$ dla każdego $i=1,\ldots,m$,
+%
+\item Funkcjonał dostatecznie zmalał:
+\[
+f_0(z+s\dz) < f_0(z) + \alpha s\dz \<g_z,\dz\>,
+\]
+gdzie $\alpha$ jest arbitralnym parametrem (przyjęto $\alpha=0.01$).  To wymaganie implikuje, że rozwiązanie musi być bliskie wyznaczonemu przez model liniowy w $z$.
+%
+\end{enumerate}
+Ustawiamy $s=1$ i zmniejszamy o wielokrotność $\beta$ aż oba z tych warunków zostaną spełnione (przyjęto $\beta = 1/2$).
+
+
+Ostatecznie, implementacja metody log-barrier przedstawia się w następującej postaci algorytmicznej:
+\begin{enumerate}
+\item Wejścia: rozwiązanie dopuszczalne $z^0$, tolerancja $\eta$,  parametry $\mu$ i początkowe $\tau^1$.  Ustaw $k=1$.
+\item Rozwiąż \eqref{eq:logbarrier} metodą Newtona, wykorzystując $z^{k-1}$ jako punkt startowy. Rozwiązanie nazwij $z^k$.
+\item Jeżeli $m/\tau^k < \eta$, zakończ i zwróć $z^k$.
+\item W przeciwnym wypadku, ustaw $\tau^{k+1} = \mu\tau^k,~k=k+1$ i idź do kroku 2.
+\end{enumerate}
+W praktyce możemy z góry przewidzieć jak wiele iteracji będzie potrzebnych:
+\[
+\mathrm{liczba~iteracji} = \left\lceil \frac{\log m - \log\eta -\log\tau^1}{\log\mu}\right\rceil.
+\]
+Ostatnim problemem jest wybranie $\tau^1$. Dostało ono ustawione tak, by $m/\tau^1$ po pierwszej iteracji było równe $\<c_0,z^0\>$.
